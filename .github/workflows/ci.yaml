@@ -8,6 +8,7 @@ on:
     - master
 
 jobs:
+
   "tuxOS-Tests":
     runs-on: ubuntu-latest
     strategy:
@@ -23,8 +24,6 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
-    - name: Install dependencies
-      run: apt-get update && apt-get install -y zlib1g-dev zip openssl libssl-dev
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
@@ -33,6 +32,28 @@ jobs:
       uses: codecov/codecov-action@v1.0.3
       with:
         token: ${{secrets.CODECOV_TOKEN}}
+        flags: base64,unittests
+        file: info.lcov
+
+  "tuxOS-Performance-Tests":
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: ['5.1']
+    container:
+      image: swift:${{ matrix.tag }}
+      volumes:
+      - $GITHUB_WORKSPACE:/src
+      options: --workdir /src
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Build
+      run: swift build -c release
+    - name: Run test
+      run: .build/release/Base64PerformanceTest
 
   "macOS-Tests":
     runs-on: macOS-latest
@@ -54,5 +75,16 @@ jobs:
         swift package generate-xcodeproj
         xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-base64-Package -enableCodeCoverage YES build test
     - name: Codecov
-      run: bash <(curl -s https://codecov.io/bash) -J 'Base64' -t ${{secrets.CODECOV_TOKEN}}
+      run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -F base64,unittests -f *.coverage.txt
 
+  "macOS-Performance-Tests":
+    runs-on: macOS-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Build
+      run: swift build -c release
+    - name: Run test
+      run: .build/release/Base64PerformanceTest
