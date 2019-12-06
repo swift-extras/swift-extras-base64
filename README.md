@@ -16,4 +16,5 @@ Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265)
 
 Some literature:
 
+- [RFC4648](https://tools.ietf.org/html/rfc4648) 
 - [Ridiculously fast base64 encoding and decoding - Daniel Lemire's blog](https://lemire.me/blog/2018/01/17/ridiculously-fast-base64-encoding-and-decoding/)
