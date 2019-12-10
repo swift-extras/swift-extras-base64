@@ -13,6 +13,9 @@ let package = Package(
   dependencies: [],
   targets: [
     .target(
+      name: "Base64PerformanceTest",
+      dependencies: ["Base64"]),
+    .target(
       name: "Base64",
       dependencies: []),
     .testTarget(
