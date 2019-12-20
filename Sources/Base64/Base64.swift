@@ -26,9 +26,6 @@ extension Base64 {
     // nearest multiple of four. We need an additional byte to create a
     // null-terminated UTF-8 String in the end.
     let newCapacity = ((bytes.count + 2) / 3) * 4 + 1
-    let alphabet = options.contains(.base64UrlAlphabet)
-      ? Base64.encodeBase64Url
-      : Base64.encodeBase64
     
     var outputBytes = [UInt8]()
     outputBytes.reserveCapacity(newCapacity)
@@ -39,10 +36,10 @@ extension Base64 {
       let secondByte = input.next()
       let thirdByte = input.next()
       
-      let firstChar  = Base64.encode(alphabet: alphabet, firstByte: firstByte)
-      let secondChar = Base64.encode(alphabet: alphabet, firstByte: firstByte, secondByte: secondByte)
-      let thirdChar  = Base64.encode(alphabet: alphabet, secondByte: secondByte, thirdByte: thirdByte)
-      let forthChar  = Base64.encode(alphabet: alphabet, thirdByte: thirdByte)
+      let firstChar  = Base64.encode(firstByte: firstByte)
+      let secondChar = Base64.encode(firstByte: firstByte, secondByte: secondByte)
+      let thirdChar  = Base64.encode(secondByte: secondByte, thirdByte: thirdByte)
+      let forthChar  = Base64.encode(thirdByte: thirdByte)
       
       outputBytes.append(firstChar)
       outputBytes.append(secondChar)
@@ -59,51 +56,165 @@ extension Base64 {
   
   // MARK: Internal
   
-  // The base64 unicode table.
-  @usableFromInline
-  static let encodeBase64: [UInt8] = [
-     65,  66,  67,  68,  69,  70,  71,  72,
-     73,  74,  75,  76,  77,  78,  79,  80,
-     81,  82,  83,  84,  85,  86,  87,  88,
-     89,  90,  97,  98,  99, 100, 101, 102,
-    103, 104, 105, 106, 107, 108, 109, 110,
-    111, 112, 113, 114, 115, 116, 117, 118,
-    119, 120, 121, 122,  48,  49,  50,  51,
-     52,  53,  54,  55,  56,  57,  43,  47,
-  ]
-  
-  @usableFromInline
-  static let encodeBase64Url: [UInt8] = [
-     65,  66,  67,  68,  69,  70,  71,  72,
-     73,  74,  75,  76,  77,  78,  79,  80,
-     81,  82,  83,  84,  85,  86,  87,  88,
-     89,  90,  97,  98,  99, 100, 101, 102,
-    103, 104, 105, 106, 107, 108, 109, 110,
-    111, 112, 113, 114, 115, 116, 117, 118,
-    119, 120, 121, 122,  48,  49,  50,  51,
-     52,  53,  54,  55,  56,  57,  45,  95,
-  ]
+
   
   @usableFromInline
   static let encodePaddingCharacter: UInt8 = 61
+
+  // The base64 unicode table.
+  @inlinable
+  static func encodeLookup(byte: UInt8) -> UInt8 {
+    switch byte {
+    case 0:
+      return 65
+    case 1:
+      return 66
+    case 2:
+      return 67
+    case 3:
+      return 68
+    case 4:
+      return 69
+    case 5:
+      return 70
+    case 6:
+      return 71
+    case 7:
+      return 72
+    case 8:
+      return 73
+    case 9:
+      return 74
+    case 10:
+      return 75
+    case 11:
+      return 76
+    case 12:
+      return 77
+    case 13:
+      return 78
+    case 14:
+      return 79
+    case 15:
+      return 80
+    case 16:
+      return 81
+    case 17:
+      return 82
+    case 18:
+      return 83
+    case 19:
+      return 84
+    case 20:
+      return 85
+    case 21:
+      return 86
+    case 22:
+      return 87
+    case 23:
+      return 88
+    case 24:
+      return 89
+    case 25:
+      return 90
+    case 26:
+      return 97
+    case 27:
+      return 98
+    case 28:
+      return 99
+    case 29:
+      return 100
+    case 30:
+      return 101
+    case 31:
+      return 102
+    case 32:
+      return 103
+    case 33:
+      return 104
+    case 34:
+      return 105
+    case 35:
+      return 106
+    case 36:
+      return 107
+    case 37:
+      return 108
+    case 38:
+      return 109
+    case 39:
+      return 110
+    case 40:
+      return 111
+    case 41:
+      return 112
+    case 42:
+      return 113
+    case 43:
+      return 114
+    case 44:
+      return 115
+    case 45:
+      return 116
+    case 46:
+      return 117
+    case 47:
+      return 118
+    case 48:
+      return 119
+    case 49:
+      return 120
+    case 50:
+      return 121
+    case 51:
+      return 122
+    case 52:
+      return 48
+    case 53:
+      return 49
+    case 54:
+      return 50
+    case 55:
+      return 51
+    case 56:
+      return 52
+    case 57:
+      return 53
+    case 58:
+      return 54
+    case 59:
+      return 55
+    case 60:
+      return 56
+    case 61:
+      return 57
+    case 62:
+      return 43
+    case 63:
+      return 47
+    default:
+      fatalError()
+    }
+  }
   
   @inlinable
-  static func encode(alphabet: [UInt8], firstByte: UInt8) -> UInt8 {
+  static func encode(firstByte: UInt8) -> UInt8 {
     let index = firstByte >> 2
-    return alphabet[Int(index)]
+    return encodeLookup(byte: index)
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], firstByte: UInt8, secondByte: UInt8?) -> UInt8 {
+  static func encode(firstByte: UInt8, secondByte: UInt8?) -> UInt8 {
     var index = (firstByte & 0b00000011) << 4
     if let secondByte = secondByte {
       index += (secondByte & 0b11110000) >> 4
     }
-    return alphabet[Int(index)]
+    return encodeLookup(byte: index)
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], secondByte: UInt8?, thirdByte: UInt8?) -> UInt8 {
+  static func encode(secondByte: UInt8?, thirdByte: UInt8?) -> UInt8 {
     guard let secondByte = secondByte else {
       // No second byte means we are just emitting padding.
       return Base64.encodePaddingCharacter
@@ -112,17 +223,17 @@ extension Base64 {
     if let thirdByte = thirdByte {
       index += (thirdByte & 0b11000000) >> 6
     }
-    return alphabet[Int(index)]
+    return encodeLookup(byte: index)
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], thirdByte: UInt8?) -> UInt8 {
+  static func encode(thirdByte: UInt8?) -> UInt8 {
     guard let thirdByte = thirdByte else {
       // No third byte means just padding.
       return Base64.encodePaddingCharacter
     }
     let index = thirdByte & 0b00111111
-    return alphabet[Int(index)]
+    return encodeLookup(byte: index)
   }
 }
 
