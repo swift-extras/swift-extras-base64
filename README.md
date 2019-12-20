@@ -6,13 +6,10 @@
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![tuxOS](https://img.shields.io/badge/os-tuxOS-green.svg?style=flat)
 
-The goal of this project is to provide an easy to use [RFC4648](https://tools.ietf.org/html/rfc4648) 
-complient base64 encode and decode implentation in pure Swift. Further this implementation
-tries to be faster than the [Foundation Base64](https://developer.apple.com/documentation/foundation/nsdata) 
-implementation. 
 
-Right now the implementation is dead simple. No fancy precomputed lookup tables, no fancy 
-SIMD instructions. 
+This project provides a base64 encoder and decoder in pure Swift (without the use of Foundation). The implementation is [RFC4648](https://tools.ietf.org/html/rfc4648) complient.
+
+Today the implementation is rather simple. No fancy precomputed lookup tables, no fancy SIMD instructions. Therefore, there is definitely room for improvement performance wise. See also [Literature for a faster algorithm](#user-content-literature-for-a-faster-algorithm)
 
 Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265) on [`swift-nio`](https://github.com/apple/swift-nio).
 
@@ -52,14 +49,13 @@ Whatevar runs GitHub Actions 😉
 |:--|:--|:--|
 | Foundation   | 33.64s | 3.49s |
 | swift-base64 | 1.07s | 1.27s |
-| Speedup | 31.18x | 2.74x |
+| Speedup | **31.18x** | 2.74x |
 
 I have no idea why Foundation base64 encoding is so slow on linux. 🤷‍♂️
 
 ## Literature for a faster algorithm
 
-I would really like to speedup this repository further to be way faster than it is today.
-Some food for thought of how this could be approached can be found here:
+I would really like to speed up this project further to be way faster than it is today. Some food for thought of how this could be approached can be found here:
 
 - [Chromium precomputed lookup tables](https://github.com/lemire/fastbase64/blob/master/src/chromiumbase64.c)
 - [Wojciech Muła, Daniel Lemire: Faster Base64 Encoding and Decoding using AVX2 Instructions](https://arxiv.org/pdf/1704.00605.pdf).
@@ -68,8 +64,7 @@ Some food for thought of how this could be approached can be found here:
 
 ## Alternatives
 
-As of today (2019-12-10) the author is only aware of two alternatives that both offer 
-only encoding. Only one of those is a real library.
+As of today (2019-12-10) the author is only aware of two alternatives that both offer only encoding.
 
 - [SwiftyBase64](https://github.com/drichardson/SwiftyBase64)
 - [NIOWebSocket - Base64](https://github.com/apple/swift-nio/blob/master/Sources/NIOWebSocket/Base64.swift)
