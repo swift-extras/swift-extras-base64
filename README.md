@@ -1,8 +1,8 @@
-# swift-base64
+# swift-base64-kit
 
 [![Swift 5.1](https://img.shields.io/badge/Swift-5.1-blue.svg)](https://swift.org/download/)
-[![github-actions](https://github.com/fabianfett/swift-base64/workflows/CI/badge.svg)](https://github.com/fabianfett/swift-base64/actions)
-[![codecov](https://codecov.io/gh/fabianfett/swift-base64/branch/master/graph/badge.svg)](https://codecov.io/gh/fabianfett/swift-base64)
+[![github-actions](https://github.com/fabianfett/swift-base64-kit/workflows/CI/badge.svg)](https://github.com/fabianfett/swift-base64/actions)
+[![codecov](https://codecov.io/gh/fabianfett/swift-base64-kit/branch/master/graph/badge.svg)](https://codecov.io/gh/fabianfett/swift-base64)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![tuxOS](https://img.shields.io/badge/os-tuxOS-green.svg?style=flat)
 
@@ -23,7 +23,7 @@ Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265)
 
 ## Performance
 
-Super [simple performance test](https://github.com/fabianfett/swift-base64/blob/master/Sources/Base64PerformanceTest/main.swift) 
+Super [simple performance test](https://github.com/fabianfett/swift-base64-kit/blob/master/Sources/Base64KitPerformanceTest/main.swift) 
 to ensure speediness of this implementation. Encoding and decoding 1m times the base64 string:
 
 ```
@@ -38,7 +38,7 @@ Quad Core 2,7 GHz Intel Core i7
 |  | Encoding | Decoding |
 |:--|:--|:--|
 | Foundation   | 2.21s | 2.28s |
-| swift-base64 | 1.01s | 1.06s |
+| swift-base64-kit | 1.01s | 1.06s |
 | Speedup | 2.18x | 2.14x |
 
 #### linux
@@ -48,7 +48,7 @@ Whatevar runs GitHub Actions 😉
 |  | Encoding | Decoding |
 |:--|:--|:--|
 | Foundation   | 33.64s | 3.49s |
-| swift-base64 | 1.07s | 1.27s |
+| swift-base64-kit | 1.07s | 1.27s |
 | Speedup | **31.18x** | 2.74x |
 
 I have no idea why Foundation base64 encoding is so slow on linux. 🤷‍♂️
