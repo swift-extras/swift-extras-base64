@@ -61,49 +61,31 @@ extension Base64 {
   
   // The base64 unicode table.
   @usableFromInline
-  static let encodeBase64: [UInt8] = [
-     65,  66,  67,  68,  69,  70,  71,  72,
-     73,  74,  75,  76,  77,  78,  79,  80,
-     81,  82,  83,  84,  85,  86,  87,  88,
-     89,  90,  97,  98,  99, 100, 101, 102,
-    103, 104, 105, 106, 107, 108, 109, 110,
-    111, 112, 113, 114, 115, 116, 117, 118,
-    119, 120, 121, 122,  48,  49,  50,  51,
-     52,  53,  54,  55,  56,  57,  43,  47,
-  ]
+  static let encodeBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".utf8
   
   @usableFromInline
-  static let encodeBase64Url: [UInt8] = [
-     65,  66,  67,  68,  69,  70,  71,  72,
-     73,  74,  75,  76,  77,  78,  79,  80,
-     81,  82,  83,  84,  85,  86,  87,  88,
-     89,  90,  97,  98,  99, 100, 101, 102,
-    103, 104, 105, 106, 107, 108, 109, 110,
-    111, 112, 113, 114, 115, 116, 117, 118,
-    119, 120, 121, 122,  48,  49,  50,  51,
-     52,  53,  54,  55,  56,  57,  45,  95,
-  ]
+  static let encodeBase64Url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".utf8
   
   @usableFromInline
   static let encodePaddingCharacter: UInt8 = 61
   
   @inlinable
-  static func encode(alphabet: [UInt8], firstByte: UInt8) -> UInt8 {
+  static func encode(alphabet: String.UTF8View, firstByte: UInt8) -> UInt8 {
     let index = firstByte >> 2
-    return alphabet[Int(index)]
+    return alphabet[alphabet.index(alphabet.startIndex, offsetBy: Int(index))]
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], firstByte: UInt8, secondByte: UInt8?) -> UInt8 {
+  static func encode(alphabet: String.UTF8View, firstByte: UInt8, secondByte: UInt8?) -> UInt8 {
     var index = (firstByte & 0b00000011) << 4
     if let secondByte = secondByte {
       index += (secondByte & 0b11110000) >> 4
     }
-    return alphabet[Int(index)]
+    return alphabet[alphabet.index(alphabet.startIndex, offsetBy: Int(index))]
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], secondByte: UInt8?, thirdByte: UInt8?) -> UInt8 {
+  static func encode(alphabet: String.UTF8View, secondByte: UInt8?, thirdByte: UInt8?) -> UInt8 {
     guard let secondByte = secondByte else {
       // No second byte means we are just emitting padding.
       return Base64.encodePaddingCharacter
@@ -112,17 +94,17 @@ extension Base64 {
     if let thirdByte = thirdByte {
       index += (thirdByte & 0b11000000) >> 6
     }
-    return alphabet[Int(index)]
+    return alphabet[alphabet.index(alphabet.startIndex, offsetBy: Int(index))]
   }
 
   @inlinable
-  static func encode(alphabet: [UInt8], thirdByte: UInt8?) -> UInt8 {
+  static func encode(alphabet: String.UTF8View, thirdByte: UInt8?) -> UInt8 {
     guard let thirdByte = thirdByte else {
       // No third byte means just padding.
       return Base64.encodePaddingCharacter
     }
     let index = thirdByte & 0b00111111
-    return alphabet[Int(index)]
+    return alphabet[alphabet.index(alphabet.startIndex, offsetBy: Int(index))]
   }
 }
 
