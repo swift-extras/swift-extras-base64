@@ -23,9 +23,8 @@ extension Base64 {
     -> String where Buffer.Element == UInt8
   {
     // In Base64, 3 bytes become 4 output characters, and we pad to the
-    // nearest multiple of four. We need an additional byte to create a
-    // null-terminated UTF-8 String in the end.
-    let newCapacity = ((bytes.count + 2) / 3) * 4 + 1
+    // nearest multiple of four.
+    let newCapacity = ((bytes.count + 2) / 3) * 4
     let alphabet = options.contains(.base64UrlAlphabet)
       ? Base64.encodeBase64Url
       : Base64.encodeBase64
@@ -49,12 +48,8 @@ extension Base64 {
       outputBytes.append(thirdChar)
       outputBytes.append(forthChar)
     }
-    
-    outputBytes.append(0)
 
-    return outputBytes.withUnsafeBufferPointer { (ptr) -> String in
-      return String(cString: ptr.baseAddress!)
-    }
+    return String(decoding: outputBytes, as: Unicode.UTF8.self)
   }
   
   // MARK: Internal
