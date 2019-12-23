@@ -1,15 +1,15 @@
 # swift-base64-kit
 
 [![Swift 5.1](https://img.shields.io/badge/Swift-5.1-blue.svg)](https://swift.org/download/)
-[![github-actions](https://github.com/fabianfett/swift-base64-kit/workflows/CI/badge.svg)](https://github.com/fabianfett/swift-base64/actions)
+[![github-actions](https://github.com/fabianfett/swift-base64-kit/workflows/CI/badge.svg)](https://github.com/fabianfett/swift-base64-kit/actions)
 [![codecov](https://codecov.io/gh/fabianfett/swift-base64-kit/branch/master/graph/badge.svg)](https://codecov.io/gh/fabianfett/swift-base64)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![tuxOS](https://img.shields.io/badge/os-tuxOS-green.svg?style=flat)
 
 
-This project provides a base64 encoder and decoder in pure Swift (without the use of Foundation). The implementation is [RFC4648](https://tools.ietf.org/html/rfc4648) complient.
+This package provides a base64 encoder and decoder in pure Swift (without the use of Foundation). The implementation is [RFC4648](https://tools.ietf.org/html/rfc4648) complient.
 
-Today the implementation is rather simple. No fancy precomputed lookup tables, no fancy SIMD instructions. Therefore, there is definitely room for improvement performance wise. See also [Literature for a faster algorithm](#user-content-literature-for-a-faster-algorithm)
+Today the implementation is rather simple. No fancy precomputed lookup tables, no fancy SIMD instructions. Therefore, there is definitely room for improvement performance-wise. See also [Literature for a faster algorithm](#user-content-literature-for-a-faster-algorithm).
 
 Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265) on [`swift-nio`](https://github.com/apple/swift-nio).
 
@@ -19,7 +19,6 @@ Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265)
 - [x] faster than Foundation
 - [ ] decoding can ignore line breaks
 - [ ] encoding can insert line breaks
-- [ ] 100% test coverage
 
 ## Performance
 
@@ -33,7 +32,7 @@ AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7
 #### macOS
 
 MacBook Pro (15-inch, late 2016 - the first one with the butterfly keyboard). 
-Quad Core 2,7 GHz Intel Core i7
+Quad Core 2.7 GHz Intel Core i7
 
 |  | Encoding | Decoding |
 |:--|:--|:--|
@@ -55,7 +54,7 @@ I have no idea why Foundation base64 encoding is so slow on linux. 🤷‍♂️
 
 ## Literature for a faster algorithm
 
-I would really like to speed up this project further to be way faster than it is today. Some food for thought of how this could be approached can be found here:
+I would really like to speed up this project further to be way faster than it is today. Some food for thought of how this could be tackled can be found here:
 
 - [Chromium precomputed lookup tables](https://github.com/lemire/fastbase64/blob/master/src/chromiumbase64.c)
 - [Wojciech Muła, Daniel Lemire: Faster Base64 Encoding and Decoding using AVX2 Instructions](https://arxiv.org/pdf/1704.00605.pdf).
@@ -64,8 +63,7 @@ I would really like to speed up this project further to be way faster than it is
 
 ## Alternatives
 
-As of today (2019-12-10) the author is only aware of two alternatives that both offer only encoding.
+As of today (2019-12-10), the author is aware of only one alternative that offers merely encoding.
 
 - [SwiftyBase64](https://github.com/drichardson/SwiftyBase64)
-- [NIOWebSocket - Base64](https://github.com/apple/swift-nio/blob/master/Sources/NIOWebSocket/Base64.swift)
 
