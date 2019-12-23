@@ -27,7 +27,7 @@ jobs:
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
-      run: llvm-cov export -format="lcov" .build/debug/swift-base64PackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
+      run: llvm-cov export -format="lcov" .build/debug/swift-base64-kitPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v1.0.3
       with:
@@ -53,7 +53,7 @@ jobs:
     - name: Build
       run: swift build -c release
     - name: Run test
-      run: .build/release/Base64PerformanceTest
+      run: .build/release/Base64KitPerformanceTest
 
   "macOS-Tests":
     runs-on: macOS-latest
@@ -73,7 +73,7 @@ jobs:
     - name: Xcode Tests
       run: |
         swift package generate-xcodeproj
-        xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-base64-Package -enableCodeCoverage YES build test
+        xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-base64-kit-Package -enableCodeCoverage YES build test
     - name: Codecov
       run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -F base64,unittests -f *.coverage.txt
 
@@ -87,4 +87,4 @@ jobs:
     - name: Build
       run: swift build -c release
     - name: Run test
-      run: .build/release/Base64PerformanceTest
+      run: .build/release/Base64KitPerformanceTest

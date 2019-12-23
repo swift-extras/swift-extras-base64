@@ -1,5 +1,5 @@
 import XCTest
-@testable import Base64
+@testable import Base64Kit
 
 class DecodingTests: XCTestCase {
   
