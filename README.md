@@ -20,6 +20,8 @@ Everything began with [an issue](https://github.com/apple/swift-nio/issues/1265)
 - [ ] decoding can ignore line breaks
 - [ ] encoding can insert line breaks
 
+This package's encoding implementation [is used in `swift-nio`'s websocket implementation](https://github.com/apple/swift-nio/blob/master/Sources/NIOWebSocket/Base64.swift).
+
 ## Performance
 
 Super [simple performance test](https://github.com/fabianfett/swift-base64-kit/blob/master/Sources/Base64KitPerformanceTest/main.swift) 
