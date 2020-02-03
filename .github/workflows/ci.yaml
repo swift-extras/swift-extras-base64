@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: ['5.1']
+        images:
+        - swift:5.1
+        - swiftlang/swift:nightly-5.2
     container:
-      image: swift:${{ matrix.tag }}
+      image: ${{ matrix.images }}
       volumes:
       - $GITHUB_WORKSPACE:/src
       options: --workdir /src
@@ -24,6 +26,8 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
+    - name: Swift Version
+      run: swift --version
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
@@ -39,9 +43,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: ['5.1']
+        images:
+        - swift:5.1
+        - swiftlang/swift:nightly-5.2
     container:
-      image: swift:${{ matrix.tag }}
+      image: ${{ matrix.images }}
       volumes:
       - $GITHUB_WORKSPACE:/src
       options: --workdir /src
@@ -50,6 +56,8 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
+    - name: Swift Version
+      run: swift --version
     - name: Build
       run: swift build -c release
     - name: Run test
