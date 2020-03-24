@@ -19,7 +19,25 @@ extension Base64 {
   /// now: the purpose of this encoding is to avoid round-tripping through Data, and the perf gain
   /// from avoiding that is more than enough to outweigh the silliness of this code.
   @inlinable
+  @inline(__always)
   public static func encode<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    -> String where Buffer.Element == UInt8
+  {
+    if bytes is [UInt8] {
+      return _encode(bytes: bytes, options: options)
+    }
+    else if let encoded = bytes.withContiguousStorageIfAvailable({
+      return _encode(bytes: [UInt8]($0), options: options)
+    }) {
+      return encoded
+    }
+    
+    return _encode(bytes: Array(bytes), options: options)
+  }
+  
+  @inlinable
+  @inline(__always)
+  internal static func _encode<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
     -> String where Buffer.Element == UInt8
   {
     // In Base64, 3 bytes become 4 output characters, and we pad to the
@@ -158,7 +176,33 @@ extension Base64 {
   }
   
   @inlinable
+  @inline(__always)
+  public static func decode(encoded: [UInt8], options: DecodingOptions = [])
+    throws -> [UInt8]
+  {
+    return try _decode(encoded: encoded, options: options)
+  }
+  
+  @inlinable
+  @inline(__always)
   public static func decode<Buffer: Collection>(encoded: Buffer, options: DecodingOptions = [])
+    throws -> [UInt8] where Buffer.Element == UInt8
+  {
+    if encoded is [UInt8] {
+      return try _decode(encoded: encoded, options: options)
+    }
+    if let decoded = try encoded.withContiguousStorageIfAvailable({
+      return try _decode(encoded: $0, options: options)
+    }) {
+      return decoded
+    }
+      
+    return try _decode(encoded: Array(encoded), options: options)
+  }
+  
+  @inlinable
+  @inline(__always)
+  internal static func _decode<Buffer: Collection>(encoded: Buffer, options: DecodingOptions = [])
     throws -> [UInt8] where Buffer.Element == UInt8
   {
     let alphabet = options.contains(.base64UrlAlphabet)
@@ -209,26 +253,6 @@ extension Base64 {
     
     return outputBytes
   }
-  
-  @inlinable
-  public static func decode(encoded: String, options: DecodingOptions = []) throws -> [UInt8] {
-    // A string can be backed by a contiguous storage (pure swift string)
-    // or a nsstring (bridged string from objc). We only get a pointer
-    // to the contiguous storage, if the input string is a swift string.
-    // Therefore to transform the nsstring backed input into a swift
-    // string we concat the input with nothing, causing a copy on write
-    // into a swift string.
-    let decoded = try encoded.utf8.withContiguousStorageIfAvailable { (pointer) in
-      return try self.decode(encoded: pointer, options: options)
-    }
-    
-    if decoded != nil {
-      return decoded!
-    }
-    
-    return try decode(encoded: encoded + "", options: options)
-  }
-  
   
   // MARK: Internal
   
@@ -348,7 +372,7 @@ extension String {
   public func base64decoded(options: Base64.DecodingOptions = []) throws -> [UInt8] {
     // In Base64, 3 bytes become 4 output characters, and we pad to the nearest multiple
     // of four.
-    return try Base64.decode(encoded: self, options: options)
+    return try Base64.decode(encoded: self.utf8, options: options)
   }
 }
 
