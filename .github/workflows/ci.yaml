@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: ['5.1']
+        images:
+        - swift:5.1
+        - swift:5.2
     container:
-      image: swift:${{ matrix.tag }}
+      image: ${{ matrix.images }}
       volumes:
       - $GITHUB_WORKSPACE:/src
       options: --workdir /src
@@ -39,9 +41,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: ['5.1']
+        images:
+        - swift:5.1
+        - swift:5.2
     container:
-      image: swift:${{ matrix.tag }}
+      image: ${{ matrix.images }}
       volumes:
       - $GITHUB_WORKSPACE:/src
       options: --workdir /src
