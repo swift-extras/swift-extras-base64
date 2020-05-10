@@ -27,27 +27,46 @@ extension Base64 {
             ? Base64.encodeBase64Url
             : Base64.encodeBase64
 
-        var outputBytes = [UInt8]()
-        outputBytes.reserveCapacity(newCapacity)
-
         var input = bytes.makeIterator()
 
-        while let firstByte = input.next() {
-            let secondByte = input.next()
-            let thirdByte = input.next()
+        #if swift(>=5.3) && os(Linux)
+            return String(unsafeUninitializedCapacity: newCapacity) { buffer in
+                var i = 0
+                while let firstByte = input.next() {
+                    let secondByte = input.next()
+                    let thirdByte = input.next()
 
-            let firstChar = Base64.encode(alphabet: alphabet, firstByte: firstByte)
-            let secondChar = Base64.encode(alphabet: alphabet, firstByte: firstByte, secondByte: secondByte)
-            let thirdChar = Base64.encode(alphabet: alphabet, secondByte: secondByte, thirdByte: thirdByte)
-            let forthChar = Base64.encode(alphabet: alphabet, thirdByte: thirdByte)
+                    buffer[i] = Base64.encode(alphabet: alphabet, firstByte: firstByte)
+                    buffer[i + 1] = Base64.encode(alphabet: alphabet, firstByte: firstByte, secondByte: secondByte)
+                    buffer[i + 2] = Base64.encode(alphabet: alphabet, secondByte: secondByte, thirdByte: thirdByte)
+                    buffer[i + 3] = Base64.encode(alphabet: alphabet, thirdByte: thirdByte)
 
-            outputBytes.append(firstChar)
-            outputBytes.append(secondChar)
-            outputBytes.append(thirdChar)
-            outputBytes.append(forthChar)
-        }
+                    i += 4
+                }
 
-        return String(decoding: outputBytes, as: Unicode.UTF8.self)
+                return newCapacity
+            }
+        #else
+            var outputBytes = [UInt8]()
+            outputBytes.reserveCapacity(newCapacity)
+
+            while let firstByte = input.next() {
+                let secondByte = input.next()
+                let thirdByte = input.next()
+
+                let firstChar = Base64.encode(alphabet: alphabet, firstByte: firstByte)
+                let secondChar = Base64.encode(alphabet: alphabet, firstByte: firstByte, secondByte: secondByte)
+                let thirdChar = Base64.encode(alphabet: alphabet, secondByte: secondByte, thirdByte: thirdByte)
+                let forthChar = Base64.encode(alphabet: alphabet, thirdByte: thirdByte)
+
+                outputBytes.append(firstChar)
+                outputBytes.append(secondChar)
+                outputBytes.append(thirdChar)
+                outputBytes.append(forthChar)
+            }
+
+            return String(decoding: outputBytes, as: Unicode.UTF8.self)
+        #endif
     }
 
     // MARK: Internal
