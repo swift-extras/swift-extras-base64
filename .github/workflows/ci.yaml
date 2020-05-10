@@ -64,6 +64,25 @@ jobs:
     - name: Run test
       run: .build/release/Base64KitPerformanceTest
 
+  "tuxOS-Integration-Tests":
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        images:
+        - swift:5.2
+        - swiftlang/swift:nightly-5.3
+    container:
+      image: ${{ matrix.images }}
+    env:
+      MAX_ALLOCS_ALLOWED_base64_decoding: 1000
+      MAX_ALLOCS_ALLOWED_base64_encoding: 2000
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Test
+      run: ./run-tests.sh
+      working-directory: ./IntegrationTests
+
   "macOS-Tests":
     runs-on: macOS-latest
     steps:
