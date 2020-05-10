@@ -23,7 +23,7 @@ jobs:
       options: --workdir /src
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Test
@@ -51,7 +51,7 @@ jobs:
       options: --workdir /src
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Build
@@ -63,7 +63,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Show all Xcode versions
@@ -85,7 +85,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Build
