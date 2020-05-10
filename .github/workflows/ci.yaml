@@ -9,6 +9,16 @@ on:
 
 jobs:
 
+  "sanity-Tests":
+    runs-on: macOS-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install swiftformat
+      run: brew install swiftformat
+    - name: Run sanity
+      run: ./scripts/sanity.sh .
+
   "tuxOS-Tests":
     runs-on: ubuntu-latest
     strategy:
@@ -16,24 +26,23 @@ jobs:
         images:
         - swift:5.1
         - swift:5.2
+        - swiftlang/swift:nightly-5.3-bionic
+        - swiftlang/swift:nightly-amazonlinux2
     container:
       image: ${{ matrix.images }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
       run: llvm-cov export -format="lcov" .build/debug/swift-base64-kitPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Install curl
+      if: matrix.images != 'swiftlang/swift:nightly-amazonlinux2'
       run: apt-get update && apt-get install -y curl # required by the codecov action.
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v1
       with:
-        token: ${{secrets.CODECOV_TOKEN}}
-        flags: base64,unittests
         file: info.lcov
 
   "tuxOS-Performance-Tests":
@@ -43,13 +52,13 @@ jobs:
         images:
         - swift:5.1
         - swift:5.2
+        - swiftlang/swift:nightly-5.3-bionic
+        - swiftlang/swift:nightly-amazonlinux2
     container:
       image: ${{ matrix.images }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - name: Build
       run: swift build -c release
     - name: Run test
@@ -60,8 +69,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - name: Show all Xcode versions
       run: ls -an /Applications/ | grep Xcode*
     - name: Change Xcode command line tools
@@ -75,15 +82,13 @@ jobs:
         swift package generate-xcodeproj
         xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-base64-kit-Package -enableCodeCoverage YES build test
     - name: Codecov
-      run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -F base64,unittests -f *.coverage.txt
+      run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -f *.coverage.txt
 
   "macOS-Performance-Tests":
     runs-on: macOS-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - name: Build
       run: swift build -c release
     - name: Run test

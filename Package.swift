@@ -4,31 +4,38 @@
 import PackageDescription
 
 let package = Package(
-  name: "swift-base64-kit",
-  products: [
-    .library(
-      name: "Base64Kit",
-      targets: ["Base64Kit"]),
-    .library(
-      name: "Base32Kit",
-      targets: ["Base32Kit"])
-  ],
-  dependencies: [],
-  targets: [
-    .target(
-      name: "Base64KitPerformanceTest",
-      dependencies: ["Base64Kit"]),
-    .target(
-      name: "Base64Kit",
-      dependencies: []),
-    .testTarget(
-      name: "Base64KitTests",
-      dependencies: ["Base64Kit"]),
-    .target(
-      name: "Base32Kit",
-      dependencies: []),
-    .testTarget(
-      name: "Base32KitTests",
-      dependencies: ["Base32Kit"])
-  ]
+    name: "swift-base64-kit",
+    products: [
+        .library(
+            name: "Base64Kit",
+            targets: ["Base64Kit"]
+        ),
+        .library(
+            name: "Base32Kit",
+            targets: ["Base32Kit"]
+        ),
+    ],
+    dependencies: [],
+    targets: [
+        .target(
+            name: "Base64KitPerformanceTest",
+            dependencies: ["Base64Kit"]
+        ),
+        .target(
+            name: "Base64Kit",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "Base64KitTests",
+            dependencies: ["Base64Kit"]
+        ),
+        .target(
+            name: "Base32Kit",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "Base32KitTests",
+            dependencies: ["Base32Kit"]
+        ),
+    ]
 )
