@@ -145,13 +145,6 @@ extension Base64 {
         public static let base64UrlAlphabet = DecodingOptions(rawValue: UInt(1 << 0))
     }
 
-    public enum DecodingError: Error, Equatable {
-        case invalidLength
-        case invalidCharacter(UInt8)
-        case unexpectedPaddingCharacter
-        case unexpectedEnd
-    }
-
     @inlinable
     public static func decode<Buffer: Collection>(encoded: Buffer, options: DecodingOptions = [])
         throws -> [UInt8] where Buffer.Element == UInt8 {
@@ -304,10 +297,10 @@ extension IteratorProtocol where Self.Element == UInt8 {
         }
 
         if value == Base64.paddingCharacter {
-            throw Base64.DecodingError.unexpectedPaddingCharacter
+            throw DecodingError.unexpectedPaddingCharacter
         }
 
-        throw Base64.DecodingError.invalidCharacter(ascii)
+        throw DecodingError.invalidCharacter(ascii)
     }
 
     @inlinable mutating func nextValueOrEmpty(alphabet: [UInt8]) throws -> UInt8? {
@@ -323,7 +316,7 @@ extension IteratorProtocol where Self.Element == UInt8 {
             return nil
         }
 
-        throw Base64.DecodingError.invalidCharacter(ascii)
+        throw DecodingError.invalidCharacter(ascii)
     }
 }
 
