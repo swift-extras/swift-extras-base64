@@ -37,13 +37,13 @@ class DecodingTests: XCTestCase {
 
     func testBase64DecodingWithPoop() {
         XCTAssertThrowsError(_ = try "💩".base64decoded()) { error in
-            XCTAssertEqual(error as? Base64.DecodingError, .invalidCharacter(240))
+            XCTAssertEqual(error as? DecodingError, .invalidCharacter(240))
         }
     }
 
     func testBase64DecodingWithInvalidLength() {
         XCTAssertThrowsError(_ = try "AAAAA".base64decoded()) { error in
-            XCTAssertEqual(error as? Base64.DecodingError, .invalidLength)
+            XCTAssertEqual(error as? DecodingError, .invalidLength)
         }
     }
 
