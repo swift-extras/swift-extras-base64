@@ -2,30 +2,6 @@
 import XCTest
 
 final class Base32DecodingTests: XCTestCase {
-    static var allTests = [
-        // Normal alphabet tests:
-        ("testRFC4648TestVectors", testRFC4648TestVectors),
-        ("testLowerCaseRFC4648TestVectors", testLowerCaseRFC4648TestVectors),
-        ("testInvalidLength", testInvalidLength),
-        ("testInvalidAsciiCharacters", testInvalidAsciiCharacters),
-        ("testEmoji", testEmoji),
-        ("testLineBreaks", testLineBreaks),
-        ("testMisplacedPaddingCharacter", testMisplacedPaddingCharacter),
-        ("testNulCharacter", testNulCharacter),
-        ("testCaseSensitivity", testCaseSensitivity),
-
-        // Hex alphabet tests:
-        ("testHexRFC4648TestVectors", testHexRFC4648TestVectors),
-        ("testHexLowerCaseRFC4648TestVectors", testHexLowerCaseRFC4648TestVectors),
-        ("testHexInvalidLength", testHexInvalidLength),
-        ("testHexInvalidAsciiCharacters", testHexInvalidAsciiCharacters),
-        ("testHexEmoji", testHexEmoji),
-        ("testHexLineBreaks", testHexLineBreaks),
-        ("testHexMisplacedPaddingCharacter", testHexMisplacedPaddingCharacter),
-        ("testHexNulCharacter", testHexNulCharacter),
-        ("testHexCaseSensitivity", testHexCaseSensitivity),
-    ]
-
     private let invalidAsciiCharacters: Set<UInt8> = {
         // Create a Set of all ASCII characters, including the following sets of characters:
         //

@@ -2,12 +2,6 @@
 import XCTest
 
 final class ValidationTests: XCTestCase {
-    static var allTests = [
-        // Normal alphabet tests:
-        ("testValidPadding", testValidPadding),
-        ("testInvalidPadding", testInvalidPadding),
-    ]
-
     func testValidPadding() {
         // given:
         let encodedStrings: [String] = [

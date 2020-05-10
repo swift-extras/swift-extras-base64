@@ -2,21 +2,6 @@
 import XCTest
 
 final class Base32EncodingTests: XCTestCase {
-    public static var allTests = [
-        // Normal alphabet tests:
-        ("testRFC4648TestVectors", testRFC4648TestVectors),
-        ("testSentences", testSentences),
-        ("testEmoji", testEmoji),
-
-        // Hex alphabet tests:
-        ("testHexRFC4648TestVectors", testHexRFC4648TestVectors),
-        ("testHexSentences", testHexSentences),
-        ("testHexEmoji", testHexEmoji),
-
-        // General tests:
-        ("testCapacityFormula", testCapacityFormula),
-    ]
-
     func testRFC4648TestVectors() {
         let testData: [String: String] = [
             "": "",
