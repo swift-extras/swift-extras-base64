@@ -18,9 +18,7 @@ jobs:
         - swift:5.2
     container:
       image: ${{ matrix.images }}
-      volumes:
-      - $GITHUB_WORKSPACE:/src
-      options: --workdir /src
+      options: --workdir $GITHUB_WORKSPACE
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -46,9 +44,7 @@ jobs:
         - swift:5.2
     container:
       image: ${{ matrix.images }}
-      volumes:
-      - $GITHUB_WORKSPACE:/src
-      options: --workdir /src
+      options: --workdir $GITHUB_WORKSPACE
     steps:
     - name: Checkout
       uses: actions/checkout@v2
