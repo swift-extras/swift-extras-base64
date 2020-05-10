@@ -10,10 +10,6 @@ let package = Package(
             name: "Base64Kit",
             targets: ["Base64Kit"]
         ),
-        .library(
-            name: "Base32Kit",
-            targets: ["Base32Kit"]
-        ),
     ],
     dependencies: [],
     targets: [
@@ -28,14 +24,6 @@ let package = Package(
         .testTarget(
             name: "Base64KitTests",
             dependencies: ["Base64Kit"]
-        ),
-        .target(
-            name: "Base32Kit",
-            dependencies: []
-        ),
-        .testTarget(
-            name: "Base32KitTests",
-            dependencies: ["Base32Kit"]
         ),
     ]
 )

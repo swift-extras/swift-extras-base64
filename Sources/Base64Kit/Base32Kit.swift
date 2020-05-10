@@ -291,14 +291,14 @@ extension Base32 {
         var input = bytes.makeIterator()
 
         for _ in 0 ..< blocksWithoutPadding {
-            let firstValue = try input.nextValue(alphabet: alphabet)
-            let secondValue = try input.nextValue(alphabet: alphabet)
-            let thirdValue = try input.nextValue(alphabet: alphabet)
-            let fourthValue = try input.nextValue(alphabet: alphabet)
-            let fifthValue = try input.nextValue(alphabet: alphabet)
-            let sixthValue = try input.nextValue(alphabet: alphabet)
-            let seventhValue = try input.nextValue(alphabet: alphabet)
-            let eightValue = try input.nextValue(alphabet: alphabet)
+            let firstValue = try input.nextBase32Value(alphabet: alphabet)
+            let secondValue = try input.nextBase32Value(alphabet: alphabet)
+            let thirdValue = try input.nextBase32Value(alphabet: alphabet)
+            let fourthValue = try input.nextBase32Value(alphabet: alphabet)
+            let fifthValue = try input.nextBase32Value(alphabet: alphabet)
+            let sixthValue = try input.nextBase32Value(alphabet: alphabet)
+            let seventhValue = try input.nextBase32Value(alphabet: alphabet)
+            let eightValue = try input.nextBase32Value(alphabet: alphabet)
 
             output.append((firstValue << 3) | (secondValue >> 2))
             output.append((secondValue << 6) | (thirdValue << 1) | (fourthValue >> 4))
@@ -307,36 +307,36 @@ extension Base32 {
             output.append((seventhValue << 5) | eightValue)
         }
 
-        let firstByte = try input.nextValue(alphabet: alphabet)
-        let secondByte = try input.nextValue(alphabet: alphabet)
+        let firstByte = try input.nextBase32Value(alphabet: alphabet)
+        let secondByte = try input.nextBase32Value(alphabet: alphabet)
 
         let value = (firstByte << 3) | (secondByte >> 2)
         output.append(value)
 
-        let thirdByte = input.nextValueOrEmpty(alphabet: alphabet)
-        let fourthByte = input.nextValueOrEmpty(alphabet: alphabet)
+        let thirdByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
+        let fourthByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
 
         if thirdByte != nil, fourthByte != nil {
             let value = (secondByte << 6) | (thirdByte! << 1) | (fourthByte! >> 4)
             output.append(value)
         }
 
-        let fifthByte = input.nextValueOrEmpty(alphabet: alphabet)
+        let fifthByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
 
         if fifthByte != nil {
             let value = (fourthByte! << 4) | (fifthByte! >> 1)
             output.append(value)
         }
 
-        let sixthByte = input.nextValueOrEmpty(alphabet: alphabet)
-        let seventhByte = input.nextValueOrEmpty(alphabet: alphabet)
+        let sixthByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
+        let seventhByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
 
         if sixthByte != nil, seventhByte != nil {
             let value = (fifthByte! << 7) | (sixthByte! << 2) | (seventhByte! >> 3)
             output.append(value)
         }
 
-        let eightByte = input.nextValueOrEmpty(alphabet: alphabet)
+        let eightByte = input.nextBase32ValueOrEmpty(alphabet: alphabet)
         if eightByte != nil {
             let value = (seventhByte! << 5) | eightByte!
             output.append(value)
@@ -347,7 +347,7 @@ extension Base32 {
 }
 
 extension IteratorProtocol where Self.Element == UInt8 {
-    mutating func nextValue(alphabet: [UInt8]) throws -> UInt8 {
+    mutating func nextBase32Value(alphabet: [UInt8]) throws -> UInt8 {
         guard let ascii = next() else {
             throw Base32.DecodingError.missingCharacter
         }
@@ -355,7 +355,7 @@ extension IteratorProtocol where Self.Element == UInt8 {
         return alphabet[Int(ascii)]
     }
 
-    mutating func nextValueOrEmpty(alphabet: [UInt8]) -> UInt8? {
+    mutating func nextBase32ValueOrEmpty(alphabet: [UInt8]) -> UInt8? {
         guard let ascii = next() else {
             return nil
         }

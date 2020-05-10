@@ -1,7 +1,7 @@
-@testable import Base32Kit
+@testable import Base64Kit
 import XCTest
 
-final class EncodingTests: XCTestCase {
+final class Base32EncodingTests: XCTestCase {
     public static var allTests = [
         // Normal alphabet tests:
         ("testRFC4648TestVectors", testRFC4648TestVectors),

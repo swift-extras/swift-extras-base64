@@ -1,4 +1,4 @@
-@testable import Base32Kit
+@testable import Base64Kit
 import XCTest
 
 final class ValidationTests: XCTestCase {
