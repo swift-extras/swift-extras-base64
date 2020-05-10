@@ -1,8 +1,7 @@
-import XCTest
 @testable import Base32Kit
+import XCTest
 
 final class DecodingTests: XCTestCase {
-
     static var allTests = [
         // Normal alphabet tests:
         ("testRFC4648TestVectors", testRFC4648TestVectors),
@@ -24,7 +23,7 @@ final class DecodingTests: XCTestCase {
         ("testHexLineBreaks", testHexLineBreaks),
         ("testHexMisplacedPaddingCharacter", testHexMisplacedPaddingCharacter),
         ("testHexNulCharacter", testHexNulCharacter),
-        ("testHexCaseSensitivity", testHexCaseSensitivity)
+        ("testHexCaseSensitivity", testHexCaseSensitivity),
     ]
 
     private let invalidAsciiCharacters: Set<UInt8> = {
@@ -33,7 +32,7 @@ final class DecodingTests: XCTestCase {
         // 1. ASCII control characters (0 - 31)
         // 2. ASCII printable characters (32 - 127)
         // 3. ASCII extended character set (128 - 255)
-        var asciiCharacters = Set<UInt8>(0...255)
+        var asciiCharacters = Set<UInt8>(0 ... 255)
 
         // Remove all valid characters as defined by the Base 32 alphabet (all upper case) from the list:
         asciiCharacters.subtract(Set(Alphabet.base32))
@@ -61,7 +60,7 @@ final class DecodingTests: XCTestCase {
         // 1. ASCII control characters (0 - 31)
         // 2. ASCII printable characters (32 - 127)
         // 3. ASCII extended character set (128 - 255)
-        var asciiCharacters = Set<UInt8>(0...255)
+        var asciiCharacters = Set<UInt8>(0 ... 255)
 
         // Remove all valid characters as defined by the Base 32 alphabet (all upper case) from the list:
         asciiCharacters.subtract(Set(Alphabet.base32hex))
@@ -91,7 +90,7 @@ final class DecodingTests: XCTestCase {
             "MZXW6===": "foo",
             "MZXW6YQ=": "foob",
             "MZXW6YTB": "fooba",
-            "MZXW6YTBOI======": "foobar"
+            "MZXW6YTBOI======": "foobar",
         ]
 
         for (input, expected) in testData {
@@ -112,7 +111,7 @@ final class DecodingTests: XCTestCase {
             "mzxw6===": "foo",
             "mzxw6yq=": "foob",
             "mzxw6ytb": "fooba",
-            "mzxw6ytboi======": "foobar"
+            "mzxw6ytboi======": "foobar",
         ]
 
         for (input, expected) in testData {
@@ -175,10 +174,10 @@ final class DecodingTests: XCTestCase {
 
     func testEmoji() {
         let emojiRanges = [
-            0x1F600...0x1F636,
-            0x1F645...0x1F64F,
-            0x1F910...0x1F91F,
-            0x1F30D...0x1F52D
+            0x1F600 ... 0x1F636,
+            0x1F645 ... 0x1F64F,
+            0x1F910 ... 0x1F91F,
+            0x1F30D ... 0x1F52D,
         ]
 
         for subRange in emojiRanges {
@@ -208,7 +207,7 @@ final class DecodingTests: XCTestCase {
 
             // New lines at the beginning of the string:
             "\na======": "\n",
-            "\r\na======": "\r\n"
+            "\r\na======": "\r\n",
         ]
 
         for (encoded, invalidCharacter) in testStrings {
@@ -249,7 +248,7 @@ final class DecodingTests: XCTestCase {
             "=ZXW6YTBOI======",
             "MZXW6Y=BOI======",
             "MZ=W6Y=BOI======",
-            "=ZXW6Y=BOI======"
+            "=ZXW6Y=BOI======",
         ]
 
         for encoded in testStrings {
@@ -271,12 +270,12 @@ final class DecodingTests: XCTestCase {
         let bytes: [UInt8] = [
             77, // M
             90, // Z
-             0, // NUL <-- This should not break the decoder.
+            0, // NUL <-- This should not break the decoder.
             81, // Q
             61, // =
             61, // =
             61, // =
-            61  // =
+            61, // =
         ]
 
         let encoded = String(decoding: bytes, as: Unicode.UTF8.self)
@@ -295,7 +294,7 @@ final class DecodingTests: XCTestCase {
             "MZxw6===": "foo",
             "mZXW6yQ=": "foob",
             "MZXW6Ytb": "fooba",
-            "mzXw6YTBoI======": "foobar"
+            "mzXw6YTBoI======": "foobar",
         ]
 
         for (input, expected) in testData {
@@ -316,7 +315,7 @@ final class DecodingTests: XCTestCase {
             "CPNMU===": "foo",
             "CPNMUOG=": "foob",
             "CPNMUOJ1": "fooba",
-            "CPNMUOJ1E8======": "foobar"
+            "CPNMUOJ1E8======": "foobar",
         ]
 
         for (stringToDecode, expected) in stringsToDecode {
@@ -337,7 +336,7 @@ final class DecodingTests: XCTestCase {
             "cpnmu===": "foo",
             "cpnmuog=": "foob",
             "cpnmuoj1": "fooba",
-            "cpnmuoj1e8======": "foobar"
+            "cpnmuoj1e8======": "foobar",
         ]
 
         for (input, expected) in testData {
@@ -402,10 +401,10 @@ final class DecodingTests: XCTestCase {
 
     func testHexEmoji() {
         let emojiRanges = [
-            0x1F600...0x1F636,
-            0x1F645...0x1F64F,
-            0x1F910...0x1F91F,
-            0x1F30D...0x1F52D
+            0x1F600 ... 0x1F636,
+            0x1F645 ... 0x1F64F,
+            0x1F910 ... 0x1F91F,
+            0x1F30D ... 0x1F52D,
         ]
 
         for subRange in emojiRanges {
@@ -435,7 +434,7 @@ final class DecodingTests: XCTestCase {
 
             // New lines at the beginning of the string:
             "\na======": "\n",
-            "\r\na======": "\r\n"
+            "\r\na======": "\r\n",
         ]
 
         for (encoded, invalidCharacter) in testStrings {
@@ -472,7 +471,7 @@ final class DecodingTests: XCTestCase {
             "=PNMUOJ1E8======",
             "CPNMUO=1E8======",
             "CP=MUO=1E8======",
-            "=PNMUO=1E8======"
+            "=PNMUO=1E8======",
         ]
 
         for encoded in testStrings {
@@ -487,12 +486,12 @@ final class DecodingTests: XCTestCase {
         let bytes: [UInt8] = [
             67, // C
             80, // P
-             0, // NUL <-- This should not break the decoder.
+            0, // NUL <-- This should not break the decoder.
             71, // G
             61, // =
             61, // =
             61, // =
-            61  // =
+            61, // =
         ]
 
         let encoded = String(decoding: bytes, as: Unicode.UTF8.self)
@@ -511,7 +510,7 @@ final class DecodingTests: XCTestCase {
             "CPnmU===": "foo",
             "cPNMUoG=": "foob",
             "CPNMUOj1": "fooba",
-            "cpNmUOJ1e8======": "foobar"
+            "cpNmUOJ1e8======": "foobar",
         ]
 
         for (input, expected) in testData {
@@ -528,13 +527,13 @@ final class DecodingTests: XCTestCase {
         var result = [String]()
 
         while result.count != count {
-            let length = Int.random(in: 1...1000)
+            let length = Int.random(in: 1 ... 1000)
 
             if length % 8 == 0 {
                 continue
             }
 
-            let bytes = (0..<length).map {_ in alphabet.randomElement()!}
+            let bytes = (0 ..< length).map { _ in alphabet.randomElement()! }
             result.append(String(decoding: bytes, as: Unicode.UTF8.self))
         }
 

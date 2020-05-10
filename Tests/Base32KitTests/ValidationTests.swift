@@ -1,12 +1,11 @@
-import XCTest
 @testable import Base32Kit
+import XCTest
 
 final class ValidationTests: XCTestCase {
-
     static var allTests = [
         // Normal alphabet tests:
         ("testValidPadding", testValidPadding),
-        ("testInvalidPadding", testInvalidPadding)
+        ("testInvalidPadding", testInvalidPadding),
     ]
 
     func testValidPadding() {
@@ -18,7 +17,7 @@ final class ValidationTests: XCTestCase {
             "MZXW6===",
             "MZXW6YQ=",
             "MZXW6YTB",
-            "MZXW6YTBOI======"
+            "MZXW6YTBOI======",
         ]
 
         for encodedString in encodedStrings {
@@ -57,7 +56,7 @@ final class ValidationTests: XCTestCase {
             "=ZXW6YTBOI======",
             "MZXW6Y=BOI======",
             "MZ=W6Y=BOI======",
-            "=ZXW6Y=BOI======"
+            "=ZXW6Y=BOI======",
         ]
 
         for encodedString in encodedStrings {

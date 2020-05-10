@@ -1,5 +1,4 @@
 extension Base32 {
-
     /// Validate the given `string` to be a "valid" Base 32 encoded string.
     ///
     /// The following criteria is validated:
@@ -110,8 +109,8 @@ extension Base32 {
 
         // Find the first padding character and check that none of the following characters is something other than a
         // padding character.
-        let padding = string[firstPaddingIndex..<string.endIndex]
-        return !padding.allSatisfy({ $0 == "=" })
+        let padding = string[firstPaddingIndex ..< string.endIndex]
+        return !padding.allSatisfy { $0 == "=" }
     }
 
     /// Returns a `Set` of characters that is in the given `string` but not in the given `legalCharacters`.
@@ -124,7 +123,7 @@ extension Base32 {
     ///
     /// - Complexity: O(n)
     private static func findIllegalCharacters(in string: String, legalCharacters: String) -> Set<Character>? {
-        let illegalCharacters = string.filter({ !legalCharacters.contains($0) })
+        let illegalCharacters = string.filter { !legalCharacters.contains($0) }
         return illegalCharacters.isEmpty ? nil : Set<Character>(illegalCharacters)
     }
 }

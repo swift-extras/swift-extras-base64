@@ -26,7 +26,6 @@
 ///         performance is a primary concern.
 /// - Warning: This API is still under development. APIs are subject to change and error. Do not use in production.
 public struct Base32 {
-
     /// Encodes the given `string` with the standard Base 32 alphabet as defined in section 6 of RFC 4648.
     ///
     /// If the given `string` is empty, the encoded `String` will also be empty. The  result can contain padding (`=`),
@@ -153,10 +152,8 @@ public struct Base32 {
 }
 
 extension Base32 {
-
     private static func encode<Buffer: Collection>(bytes: Buffer, alphabet: [UInt8]) -> String
         where Buffer.Element == UInt8 {
-
         var encoded = [UInt8]()
         let capacity = ((bytes.count + 4) / 5) * 8
         encoded.reserveCapacity(capacity)
@@ -196,10 +193,10 @@ extension Base32 {
     }
 
     private static func encode(alphabet: [UInt8], firstByte: UInt8, secondByte: UInt8?) -> UInt8 {
-        var index = (firstByte & 0b00000111) << 2
+        var index = (firstByte & 0b0000_0111) << 2
 
         if let secondByte = secondByte {
-            index |= (secondByte & 0b11000000) >> 6
+            index |= (secondByte & 0b1100_0000) >> 6
         }
 
         return alphabet[Int(index)]
@@ -210,7 +207,7 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        let index = (secondByte & 0b00111110) >> 1
+        let index = (secondByte & 0b0011_1110) >> 1
         return alphabet[Int(index)]
     }
 
@@ -219,10 +216,10 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        var index = (secondByte & 0b00000001) << 4
+        var index = (secondByte & 0b0000_0001) << 4
 
         if let thirdByte = thirdByte {
-            index |= (thirdByte & 0b11110000) >> 4
+            index |= (thirdByte & 0b1111_0000) >> 4
         }
 
         return alphabet[Int(index)]
@@ -233,10 +230,10 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        var index = (thirdByte & 0b00001111) << 1
+        var index = (thirdByte & 0b0000_1111) << 1
 
         if let fourthByte = fourthByte {
-            index |= (fourthByte & 0b10000000) >> 7
+            index |= (fourthByte & 0b1000_0000) >> 7
         }
 
         return alphabet[Int(index)]
@@ -247,7 +244,7 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        let index = (fourthByte & 0b01111100) >> 2
+        let index = (fourthByte & 0b0111_1100) >> 2
         return alphabet[Int(index)]
     }
 
@@ -256,10 +253,10 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        var index = (fourthByte & 0b00000011) << 3
+        var index = (fourthByte & 0b0000_0011) << 3
 
         if let fifthByte = fifthByte {
-            index |= (fifthByte & 0b11100000) >> 5
+            index |= (fifthByte & 0b1110_0000) >> 5
         }
 
         return alphabet[Int(index)]
@@ -270,24 +267,22 @@ extension Base32 {
             return Alphabet.encodePaddingCharacter
         }
 
-        let index = fifthByte & 0b00011111
+        let index = fifthByte & 0b0001_1111
         return alphabet[Int(index)]
     }
 }
 
 extension Base32 {
-    
     struct DecodingOptions: OptionSet {
         let rawValue: UInt8
-        
+
         static let requiredPadding = DecodingOptions(rawValue: 1 << 0)
-        
+
         static let strictMode: DecodingOptions = [.requiredPadding]
     }
 
     private static func decode<Buffer: Collection>(bytes: Buffer, alphabet: [UInt8]) throws -> String
         where Buffer.Element == UInt8 {
-
         let characterCount = bytes.count
         let inputBlocks = characterCount / 8
         let blocksWithoutPadding = inputBlocks - 1
@@ -295,7 +290,7 @@ extension Base32 {
         var output = [UInt8]()
         var input = bytes.makeIterator()
 
-        for _ in 0..<blocksWithoutPadding {
+        for _ in 0 ..< blocksWithoutPadding {
             let firstValue = try input.nextValue(alphabet: alphabet)
             let secondValue = try input.nextValue(alphabet: alphabet)
             let thirdValue = try input.nextValue(alphabet: alphabet)
@@ -321,7 +316,7 @@ extension Base32 {
         let thirdByte = input.nextValueOrEmpty(alphabet: alphabet)
         let fourthByte = input.nextValueOrEmpty(alphabet: alphabet)
 
-        if thirdByte != nil && fourthByte != nil {
+        if thirdByte != nil, fourthByte != nil {
             let value = (secondByte << 6) | (thirdByte! << 1) | (fourthByte! >> 4)
             output.append(value)
         }
@@ -336,7 +331,7 @@ extension Base32 {
         let sixthByte = input.nextValueOrEmpty(alphabet: alphabet)
         let seventhByte = input.nextValueOrEmpty(alphabet: alphabet)
 
-        if sixthByte != nil && seventhByte != nil {
+        if sixthByte != nil, seventhByte != nil {
             let value = (fifthByte! << 7) | (sixthByte! << 2) | (seventhByte! >> 3)
             output.append(value)
         }
@@ -352,9 +347,8 @@ extension Base32 {
 }
 
 extension IteratorProtocol where Self.Element == UInt8 {
-
     mutating func nextValue(alphabet: [UInt8]) throws -> UInt8 {
-        guard let ascii = self.next() else {
+        guard let ascii = next() else {
             throw Base32.DecodingError.missingCharacter
         }
 
@@ -362,7 +356,7 @@ extension IteratorProtocol where Self.Element == UInt8 {
     }
 
     mutating func nextValueOrEmpty(alphabet: [UInt8]) -> UInt8? {
-        guard let ascii = self.next() else {
+        guard let ascii = next() else {
             return nil
         }
 

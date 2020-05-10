@@ -1,8 +1,6 @@
 extension Base32 {
-
     /// Errors that can be thrown during decoding of a Base 32 encoded string.
     public enum DecodingError: Error, Equatable {
-
         /// The `String` to decode has invalid length. A string that should be decoded should have a length that is a
         /// multiple of 8 (e.g. 8 characters, 16, 24 ... 80, 96, etc.)
         case invalidLength
