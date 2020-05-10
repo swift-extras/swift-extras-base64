@@ -27,6 +27,8 @@ jobs:
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
       run: llvm-cov export -format="lcov" .build/debug/swift-base64-kitPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
+    - name: Install curl
+      run: apt-get update && apt-get install -y curl # required by the codecov action.
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v1
       with:
