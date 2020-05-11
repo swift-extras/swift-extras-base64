@@ -29,7 +29,7 @@ extension Base64 {
 
         var input = bytes.makeIterator()
 
-        #if swift(>=5.3) && os(Linux)
+        #if swift(>=5.3) && os(Linux) && false
             return String(unsafeUninitializedCapacity: newCapacity) { buffer in
                 var i = 0
                 while let firstByte = input.next() {

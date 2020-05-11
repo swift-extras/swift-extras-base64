@@ -29,7 +29,13 @@ let foundationEncoding = timing(name: "Foundation") {
 
 let base64Encoding = timing(name: "Base64    ") {
     for _ in 1 ... runs {
-        _ = String(base64Encoding: bytes)
+        _ = Base64.encode(bytes: bytes) // String(base64Encoding: bytes)
+    }
+}
+
+let chromeEncoding = timing(name: "Chromium  ") {
+    for _ in 1 ... runs {
+        _ = Base64.encodeChromium(bytes: bytes) // String(base64Encoding: bytes)
     }
 }
 
@@ -48,8 +54,14 @@ let base64Decoding = timing(name: "Base64    ") {
     }
 }
 
-print("------------------------------------------")
-print("Results")
+let chromeDecoding = timing(name: "Chromium  ") {
+    for _ in 1 ... runs {
+        _ = try! Base64.decodeChromium(bytes: [UInt8](base64.utf8)) // String(base64Encoding: bytes)
+    }
+}
+
+//print("------------------------------------------")
+//print("Results")
 
 var result: Int32 = 0
 if foundationEncoding < base64Encoding {
