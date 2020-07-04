@@ -1,8 +1,16 @@
-struct Alphabet {
-    static let encodePaddingCharacter: UInt8 = UInt8(ascii: "=")
+public enum Alphabet {
+    case standard
+    case hex
 }
 
-extension Alphabet {
+extension Base32 {
+    static let encodePaddingCharacter: UInt8 = UInt8(ascii: "=")
+
+    static let encodingTables: [Alphabet: [UInt8]] = [
+        .standard: base32,
+        .hex: base32hex,
+    ]
+
     static let base32: [UInt8] = [
         UInt8(ascii: "A"), //  0
         UInt8(ascii: "B"), //  1
@@ -39,7 +47,7 @@ extension Alphabet {
     ]
 }
 
-extension Alphabet {
+extension Base32 {
     static let base32hex: [UInt8] = [
         UInt8(ascii: "0"), //  0
         UInt8(ascii: "1"), //  1
@@ -78,6 +86,12 @@ extension Alphabet {
 
 extension Base32 {
     private static let __: UInt8 = 255
+
+    static let decodingTables: [Alphabet: [UInt8]] = [
+        .standard: decodeBase32,
+        .hex: decodeBase32hex,
+    ]
+
     static let decodeBase32: [UInt8] = [
         __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __,
         __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __,

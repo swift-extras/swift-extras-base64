@@ -14,7 +14,7 @@ final class Base32EncodingTests: XCTestCase {
         ]
 
         for (input, expected) in testData {
-            let encoded = Base32.encode(string: input)
+            let encoded = Base32.encode(bytes: Array(input.utf8))
             XCTAssertEqual(
                 encoded,
                 expected,
@@ -25,7 +25,7 @@ final class Base32EncodingTests: XCTestCase {
 
     func testSentences() {
         // See: https://en.wikipedia.org/wiki/Harvard_sentences
-        let sentences: [String: String] = [
+        let testData: [String: String] = [
             "Oak is strong and also gives shade.": "J5QWWIDJOMQHG5DSN5XGOIDBNZSCAYLMONXSAZ3JOZSXGIDTNBQWIZJO",
             "Cats and dogs each hate the other.": "INQXI4ZAMFXGIIDEN5TXGIDFMFRWQIDIMF2GKIDUNBSSA33UNBSXELQ=",
             "The pipe began to rust while new.": "KRUGKIDQNFYGKIDCMVTWC3RAORXSA4TVON2CA53INFWGKIDOMV3S4===",
@@ -41,12 +41,12 @@ final class Base32EncodingTests: XCTestCase {
             "Move the vat over the hot fire.": "JVXXMZJAORUGKIDWMF2CA33WMVZCA5DIMUQGQ33UEBTGS4TFFY======",
         ]
 
-        for (sentence, expected) in sentences {
-            let encoded = Base32.encode(string: sentence)
+        for (input, expected) in testData {
+            let encoded = Base32.encode(bytes: Array(input.utf8))
             XCTAssertEqual(
                 encoded,
                 expected,
-                "Input '\(sentence)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
+                "Input '\(input)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
             )
         }
     }
@@ -79,7 +79,7 @@ final class Base32EncodingTests: XCTestCase {
         ]
 
         for (input, expected) in testData {
-            let encoded = Base32.encode(string: input)
+            let encoded = Base32.encode(bytes: Array(input.utf8))
             XCTAssertEqual(
                 encoded,
                 expected,
@@ -89,7 +89,7 @@ final class Base32EncodingTests: XCTestCase {
     }
 
     func testHexRFC4648TestVectors() {
-        let stringsToEncode: [String: String] = [
+        let testData: [String: String] = [
             "": "",
             "f": "CO======",
             "fo": "CPNG====",
@@ -99,19 +99,19 @@ final class Base32EncodingTests: XCTestCase {
             "foobar": "CPNMUOJ1E8======",
         ]
 
-        for (stringToEncode, expected) in stringsToEncode {
-            let encoded = Base32.encodeHex(string: stringToEncode)
+        for (input, expected) in testData {
+            let encoded = Base32.encode(bytes: Array(input.utf8), alphabet: .hex)
             XCTAssertEqual(
                 encoded,
                 expected,
-                "Input '\(stringToEncode)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
+                "Input '\(input)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
             )
         }
     }
 
     func testHexSentences() {
         // See: https://en.wikipedia.org/wiki/Harvard_sentences
-        let sentences: [String: String] = [
+        let testData: [String: String] = [
             "Oak is strong and also gives shade.": "9TGMM839ECG76T3IDTN6E831DPI20OBCEDNI0PR9EPIN683JD1GM8P9E",
             "Cats and dogs each hate the other.": "8DGN8SP0C5N68834DTJN6835C5HMG838C5Q6A83KD1II0RRKD1IN4BG=",
             "The pipe began to rust while new.": "AHK6A83GD5O6A832CLJM2RH0EHNI0SJLEDQ20TR8D5M6A83ECLRIS===",
@@ -127,12 +127,12 @@ final class Base32EncodingTests: XCTestCase {
             "Move the vat over the hot fire.": "9LNNCP90EHK6A83MC5Q20RRMCLP20T38CKG6GRRK41J6ISJ55O======",
         ]
 
-        for (sentence, expected) in sentences {
-            let encoded = Base32.encodeHex(string: sentence)
+        for (input, expected) in testData {
+            let encoded = Base32.encode(bytes: Array(input.utf8), alphabet: .hex)
             XCTAssertEqual(
                 encoded,
                 expected,
-                "Input '\(sentence)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
+                "Input '\(input)' could not be encoded correctly. Expected: \(expected), Actual: \(encoded)."
             )
         }
     }
@@ -144,7 +144,7 @@ final class Base32EncodingTests: XCTestCase {
         ]
 
         for (input, expected) in testData {
-            let encoded = Base32.encodeHex(string: input)
+            let encoded = Base32.encode(bytes: Array(input.utf8), alphabet: .hex)
             XCTAssertEqual(
                 encoded,
                 expected,
