@@ -106,7 +106,7 @@ final class Base32DecodingTests: XCTestCase {
         for encoded in testData {
             assert(
                 try Base32.decode(encoded: encoded),
-                throws: Base32.DecodingError.invalidLength
+                throws: DecodingError.invalidLength
             )
         }
     }
@@ -306,7 +306,7 @@ final class Base32DecodingTests: XCTestCase {
         for encoded in testData {
             assert(
                 try Base32.decode(encoded: encoded, alphabet: .hex),
-                throws: Base32.DecodingError.invalidLength
+                throws: DecodingError.invalidLength
             )
         }
     }

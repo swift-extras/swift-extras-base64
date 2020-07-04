@@ -289,7 +289,7 @@ extension Base32 {
 extension IteratorProtocol where Self.Element == UInt8 {
     mutating func nextBase32Value(alphabet: [UInt8]) throws -> UInt8 {
         guard let ascii = next() else {
-            throw Base32.DecodingError.missingCharacter
+            throw DecodingError.missingCharacter
         }
 
         let char = alphabet[Int(ascii)]
