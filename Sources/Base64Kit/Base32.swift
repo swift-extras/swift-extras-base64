@@ -281,7 +281,6 @@ extension Base32 {
             output.append(value)
         }
 
-        // return String(decoding: output, as: Unicode.UTF8.self)
         return output
     }
 }
