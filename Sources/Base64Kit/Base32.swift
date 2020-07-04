@@ -26,7 +26,7 @@
 /// - Note: Encoding and decoding methods are not optimized and might perform badly. Use another Swift package if
 ///         performance is your primary concern.
 /// - Warning: This API is still under development. APIs are subject to change and error. Do not use in production.
-struct Base32 {
+public struct Base32 {
     /// Encodes the given bytes with the given Base 32 alphabet as defined in section 6 of RFC 4648.
     ///
     /// If the given bytes are empty, the encoded `String` will also be empty. The result can contain padding (`=`),
