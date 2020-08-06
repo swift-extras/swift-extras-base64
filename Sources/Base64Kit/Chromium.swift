@@ -298,7 +298,7 @@ extension Base64 {
         return bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
             Self.withUnsafeEncodingTablesAsBufferPointers { (e0, e1) -> [UInt8] in
                 [UInt8](unsafeUninitializedCapacity: newCapacity) { (buffer, length) in
-                    let to = input.count - 2
+                    let to = input.count / 3 * 3
                     var outIndex = 0
                     for index in stride(from: 0, to: to, by: 3) {
                         let t1 = input[index]
@@ -310,6 +310,21 @@ extension Base64 {
                         buffer[outIndex + 3] = e1[Int(t3)]
                         outIndex += 4
                     }
+                    
+                    if to < input.count {
+                        let index = to
+                        let alphabet = Base64.encodeBase64
+                        
+                        let firstByte = input[index]
+                        let secondByte = index + 1 < input.count ? input[index + 1] : nil
+                        let thirdByte = index + 2 < input.count ? input[index + 2] : nil
+                        
+                        buffer[outIndex]     = Base64.encode(alphabet: alphabet, firstByte: firstByte)
+                        buffer[outIndex + 1] = Base64.encode(alphabet: alphabet, firstByte: firstByte, secondByte: secondByte)
+                        buffer[outIndex + 2] = Base64.encode(alphabet: alphabet, secondByte: secondByte, thirdByte: thirdByte)
+                        buffer[outIndex + 3] = Base64.encode(alphabet: alphabet, thirdByte: thirdByte)
+                        outIndex += 4
+                    }                    
                     
                     length = outIndex
                 }
@@ -326,9 +341,9 @@ extension Base64 {
         }
         
         let decoded = try encoded.utf8.withContiguousStorageIfAvailable { (characterPointer) -> [UInt8] in
-            characterPointer.withMemoryRebound(to: UInt8.self) { (input) -> [UInt8] in
-                [UInt8](unsafeUninitializedCapacity: outputLength) { (output, length) in
-                    Self.decodeChromium(from: input, into: output, length: &length, options: options)
+            try characterPointer.withMemoryRebound(to: UInt8.self) { (input) -> [UInt8] in
+                try [UInt8](unsafeUninitializedCapacity: outputLength) { (output, length) in
+                    try Self.decodeChromium(from: input, into: output, length: &length, options: options)
                 }
             }
         }
@@ -345,11 +360,17 @@ extension Base64 {
     @inlinable
     public static func decodeChromium<Buffer: Collection>(bytes: Buffer, options: DecodingOptions = []) throws -> [UInt8] where Buffer.Element == UInt8 {
         let outputLength = ((bytes.count + 3) / 4) * 3
-        return bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
-            [UInt8](unsafeUninitializedCapacity: outputLength) { (output, length) in
-                Self.decodeChromium(from: input, into: output, length: &length, options: options)
+        let decoded = try bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
+            try [UInt8](unsafeUninitializedCapacity: outputLength) { (output, length) in
+                try Self.decodeChromium(from: input, into: output, length: &length, options: options)
             }
-        }!
+        }
+        
+        if decoded != nil {
+            return decoded!
+        }
+        
+        preconditionFailure("Always expected to have a contiguous storage")
     }
     
     @usableFromInline
@@ -357,17 +378,23 @@ extension Base64 {
         from inBuffer: UnsafeBufferPointer<UInt8>,
         into outBuffer: UnsafeMutableBufferPointer<UInt8>,
         length: inout Int,
-        options: DecodingOptions = [])
+        options: DecodingOptions = []) throws
     {
-        Self.withUnsafeDecodingTablesAsBufferPointers { (d0, d1, d2, d3) in
-            let outputLength = ((inBuffer.count + 3) / 4) * 3
-            let leftover = inBuffer.count % 4;
-            let chunks = (leftover == 0) ? outputLength / 4 - 1 : outputLength / 4
-            
+        guard inBuffer.count % 4 == 0 else {
+            throw DecodingError.invalidLength
+        }
+        
+        let outputLength = ((inBuffer.count + 3) / 4) * 3
+        let fullchunks = inBuffer.count / 4 - 1
+        guard outBuffer.count >= outputLength else {
+            preconditionFailure("Expected the out buffer to be at least as long as outputLength")
+        }
+        
+        try Self.withUnsafeDecodingTablesAsBufferPointers { (d0, d1, d2, d3) in
             var outIndex = 0
-            if chunks > 0 {
-                var inIndex = 0
-                for index in 0..<chunks {
+            if fullchunks > 0 {
+                for chunk in 0..<fullchunks {
+                    let inIndex = chunk * 4
                     let a0 = Int(inBuffer[inIndex])
                     let a1 = Int(inBuffer[inIndex + 1])
                     let a2 = Int(inBuffer[inIndex + 2])
@@ -375,24 +402,50 @@ extension Base64 {
                     var x: UInt32 = d0[a0] | d1[a1] | d2[a2] | d3[a3]
                     
                     if x >= Self.badCharacter {
-                        fatalError()
+                        // TODO: Inspect characters here better
+                        throw DecodingError.invalidCharacter(inBuffer[inIndex])
                     }
-                    
-                    inIndex += 4
                     
                     withUnsafePointer(to: &x) { (ptr) in
                         ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { (newPtr) in
                             outBuffer[outIndex] = newPtr[0]
-                            outBuffer[outIndex] = newPtr[1]
-                            outBuffer[outIndex] = newPtr[2]
+                            outBuffer[outIndex + 1] = newPtr[1]
+                            outBuffer[outIndex + 2] = newPtr[2]
                             outIndex += 3
                         }
                     }
                 }
             }
             
+            let inIndex = fullchunks > 1 ? fullchunks * 4 : 0
+            let alphabet = Base64.decodeBase64
+            let firstValue = alphabet[Int(inBuffer[inIndex])]
+            let secondValue = alphabet[Int(inBuffer[inIndex + 1])]
             
-            length = outIndex + 1
+            let thirdValue = alphabet[Int(inBuffer[inIndex + 2])]
+            let forthValue = alphabet[Int(inBuffer[inIndex + 3])]
+            
+            guard firstValue < 64, secondValue < 64 else {
+                throw DecodingError.invalidCharacter(inBuffer[inIndex])
+            }
+            
+            outBuffer[outIndex] = (firstValue << 2) | (secondValue >> 4)
+            
+            switch (thirdValue, forthValue) {
+            case (Base64.paddingCharacter, Base64.paddingCharacter):
+                length = outIndex + 1
+            case (..<64, Base64.paddingCharacter):
+                outBuffer[outIndex + 1] = (secondValue << 4) | (thirdValue >> 2)
+                length = outIndex + 2
+            case (..<64, ..<64):
+                outBuffer[outIndex + 1] = (secondValue << 4) | (thirdValue >> 2)
+                outBuffer[outIndex + 2] = (thirdValue << 6) | forthValue
+                length = outIndex + 3
+            default:
+                throw DecodingError.invalidCharacter(12)
+            }
+            
+            
         }
     }
 
