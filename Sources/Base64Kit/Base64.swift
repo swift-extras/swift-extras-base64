@@ -232,7 +232,9 @@ extension Base64 {
             return decoded!
         }
 
-        return try decode(encoded: encoded + "", options: options)
+        var encoded = encoded
+        encoded.makeContiguousUTF8()
+        return try decode(encoded: encoded, options: options)
     }
 
     // MARK: Internal

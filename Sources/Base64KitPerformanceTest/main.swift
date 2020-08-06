@@ -60,8 +60,8 @@ let chromeDecoding = timing(name: "Chromium  ") {
     }
 }
 
-//print("------------------------------------------")
-//print("Results")
+// print("------------------------------------------")
+// print("Results")
 
 var result: Int32 = 0
 if foundationEncoding < base64Encoding {

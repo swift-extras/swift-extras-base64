@@ -1,4 +1,6 @@
 
+// https://github.com/lemire/fastbase64/blob/master/src/chromiumbase64.c
+
 extension Base64 {
     
     @usableFromInline
@@ -294,41 +296,50 @@ extension Base64 {
         assert(Self.encoding1.count == 256)
         
         return bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
-            Self.encoding0.withUnsafeBufferPointer { (e0) -> [UInt8] in
-                Self.encoding1.withUnsafeBufferPointer { (e1) -> [UInt8] in
-                    [UInt8](unsafeUninitializedCapacity: newCapacity) { (buffer, length) in
-                        let to = input.count - 2
-                        var outIndex = 0
-                        for index in stride(from: 0, to: to, by: 3) {
-                            let t1 = input[index]
-                            let t2 = input[index + 1]
-                            let t3 = input[index + 2]
-                            buffer[outIndex] = e0[Int(t1)]
-                            buffer[outIndex + 1] = e1[Int(((t1 & 0x03) << 4) | ((t2 >> 4) & 0x0F))]
-                            buffer[outIndex + 2] = e1[Int(((t2 & 0x0F) << 2) | ((t3 >> 6) & 0x03))]
-                            buffer[outIndex + 3] = e1[Int(t3)]
-                            outIndex += 4
-                        }
-                        
-                        #warning("needs final bytes... padding?")
-                        
-                        length = outIndex
+            Self.withUnsafeEncodingTablesAsBufferPointers { (e0, e1) -> [UInt8] in
+                [UInt8](unsafeUninitializedCapacity: newCapacity) { (buffer, length) in
+                    let to = input.count - 2
+                    var outIndex = 0
+                    for index in stride(from: 0, to: to, by: 3) {
+                        let t1 = input[index]
+                        let t2 = input[index + 1]
+                        let t3 = input[index + 2]
+                        buffer[outIndex] = e0[Int(t1)]
+                        buffer[outIndex + 1] = e1[Int(((t1 & 0x03) << 4) | ((t2 >> 4) & 0x0F))]
+                        buffer[outIndex + 2] = e1[Int(((t2 & 0x0F) << 2) | ((t3 >> 6) & 0x03))]
+                        buffer[outIndex + 3] = e1[Int(t3)]
+                        outIndex += 4
                     }
+                    
+                    length = outIndex
                 }
             }
         }!
     }
     
     @inlinable
-    public static func decodeChromium(string: String, options: DecodingOptions = []) throws -> [UInt8] {
-        let outputLength = ((string.count + 3) / 4) * 3
-        return string.withContiguousStorageIfAvailable { (characterPointer) -> [UInt8] in
+    public static func decodeChromium(string encoded: String, options: DecodingOptions = []) throws -> [UInt8] {
+        let outputLength = ((encoded.count + 3) / 4) * 3
+        
+        guard encoded.count > 0 else {
+            return []
+        }
+        
+        let decoded = try encoded.utf8.withContiguousStorageIfAvailable { (characterPointer) -> [UInt8] in
             characterPointer.withMemoryRebound(to: UInt8.self) { (input) -> [UInt8] in
                 [UInt8](unsafeUninitializedCapacity: outputLength) { (output, length) in
                     Self.decodeChromium(from: input, into: output, length: &length, options: options)
                 }
             }
-        }!
+        }
+        
+        if decoded != nil {
+            return decoded!
+        }
+        
+        var encoded = encoded
+        encoded.makeContiguousUTF8()
+        return try Self.decodeChromium(string: encoded, options: options)
     }
     
     @inlinable
@@ -353,30 +364,33 @@ extension Base64 {
             let leftover = inBuffer.count % 4;
             let chunks = (leftover == 0) ? outputLength / 4 - 1 : outputLength / 4
             
-            var inIndex = 0
             var outIndex = 0
-            for index in 0..<chunks {
-                let a0 = Int(inBuffer[inIndex])
-                let a1 = Int(inBuffer[inIndex + 1])
-                let a2 = Int(inBuffer[inIndex + 2])
-                let a3 = Int(inBuffer[inIndex + 3])
-                var x: UInt32 = d0[a0] | d1[a1] | d2[a2] | d3[a3]
-                
-                if x >= Self.badCharacter {
-                    fatalError()
-                }
-                
-                inIndex += 4
-                
-                withUnsafePointer(to: &x) { (ptr) in
-                    ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { (newPtr) in
-                        outBuffer[outIndex] = newPtr[0]
-                        outBuffer[outIndex] = newPtr[1]
-                        outBuffer[outIndex] = newPtr[2]
-                        outIndex += 3
+            if chunks > 0 {
+                var inIndex = 0
+                for index in 0..<chunks {
+                    let a0 = Int(inBuffer[inIndex])
+                    let a1 = Int(inBuffer[inIndex + 1])
+                    let a2 = Int(inBuffer[inIndex + 2])
+                    let a3 = Int(inBuffer[inIndex + 3])
+                    var x: UInt32 = d0[a0] | d1[a1] | d2[a2] | d3[a3]
+                    
+                    if x >= Self.badCharacter {
+                        fatalError()
+                    }
+                    
+                    inIndex += 4
+                    
+                    withUnsafePointer(to: &x) { (ptr) in
+                        ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { (newPtr) in
+                            outBuffer[outIndex] = newPtr[0]
+                            outBuffer[outIndex] = newPtr[1]
+                            outBuffer[outIndex] = newPtr[2]
+                            outIndex += 3
+                        }
                     }
                 }
             }
+            
             
             length = outIndex + 1
         }
@@ -396,6 +410,18 @@ extension Base64 {
                         try body(d0, d1, d2, d3)
                     }
                 }
+            }
+        }
+    }
+    
+    @usableFromInline
+    static func withUnsafeEncodingTablesAsBufferPointers<R>(_ body: (UnsafeBufferPointer<UInt8>, UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R {
+        assert(Self.encoding0.count == 256)
+        assert(Self.encoding1.count == 256)
+        
+        return try Self.encoding0.withUnsafeBufferPointer { (e0) -> R in
+            try Self.encoding1.withUnsafeBufferPointer { (e1) -> R in
+                try body(e0, e1)
             }
         }
     }

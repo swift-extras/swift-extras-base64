@@ -2,9 +2,8 @@
 import XCTest
 
 class ChromiumTests: XCTestCase {
-    
     // MARK: Encoding
-    
+
     func testEncodeEmptyData() {
         let data = [UInt8]()
         let encodedData = Base64.encodeChromium(bytes: data)
@@ -29,9 +28,8 @@ class ChromiumTests: XCTestCase {
         XCTAssertEqual(encodedData, [UInt8]("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-_w==".utf8))
     }
 
-    
     // MARK: Decoding
-    
+
     func testDecodeEmptyString() throws {
         var decoded: [UInt8]?
         XCTAssertNoThrow(decoded = try Base64.decodeChromium(string: ""))
@@ -52,8 +50,7 @@ class ChromiumTests: XCTestCase {
 
         let expected = Array(UInt8(0) ... UInt8(255))
         var decoded: [UInt8]?
-        XCTAssertNoThrow(decoded = try base64.base64decoded())
-
+        XCTAssertNoThrow(decoded = try Base64.decodeChromium(bytes: base64.utf8))
         XCTAssertEqual(decoded, expected)
     }
 
@@ -68,13 +65,13 @@ class ChromiumTests: XCTestCase {
     }
 
     func testBase64DecodingWithPoop() {
-        XCTAssertThrowsError(_ = try "💩".base64decoded()) { error in
+        XCTAssertThrowsError(_ = try Base64.decodeChromium(bytes: "💩".utf8)) { error in
             XCTAssertEqual(error as? DecodingError, .invalidCharacter(240))
         }
     }
 
     func testBase64DecodingWithInvalidLength() {
-        XCTAssertThrowsError(_ = try "AAAAA".base64decoded()) { error in
+        XCTAssertThrowsError(_ = try Base64.decodeChromium(bytes: "AAAAA".utf8)) { error in
             XCTAssertEqual(error as? DecodingError, .invalidLength)
         }
     }
@@ -83,6 +80,6 @@ class ChromiumTests: XCTestCase {
         let test = "1234567"
         let nsstring = test.data(using: .utf8)!.base64EncodedString()
 
-        XCTAssertNoThrow(try nsstring.base64decoded())
+        XCTAssertNoThrow(try Base64.decodeChromium(string: nsstring))
     }
 }
