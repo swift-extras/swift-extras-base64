@@ -169,7 +169,7 @@ extension Base64 {
             return String(decoding: bytes, as: Unicode.UTF8.self)
         }
         #else
-        let bytes: [UInt8] = self.encodeChromium(bytes: bytes, options: options)
+        let bytes: [UInt8] = self.encode(bytes: bytes, options: options)
         return String(decoding: bytes, as: Unicode.UTF8.self)
         #endif
     }
