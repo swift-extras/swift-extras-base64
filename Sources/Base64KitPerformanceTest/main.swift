@@ -21,42 +21,68 @@ print("------------------------------------------")
 print("Encoding")
 
 let data = Data(bytes)
-let foundationEncoding = timing(name: "Foundation") {
+let foundationEncodingString = timing(name: "Foundation: Data to String  ") {
     for _ in 1 ... runs {
         _ = data.base64EncodedString()
     }
 }
 
-let base64Encoding = timing(name: "Base64    ") {
+let foundationEncodingData = timing(name: "Foundation: Data to Data    ") {
     for _ in 1 ... runs {
-        _ = Base64.encode(bytes: bytes) // String(base64Encoding: bytes)
+        _ = data.base64EncodedData()
     }
 }
 
-let chromeEncoding = timing(name: "Chromium  ") {
+let chromeEncodingBytes = timing(name: "Chromium: [UInt8] to [UInt8]") {
     for _ in 1 ... runs {
-        _ = Base64.encodeChromium(bytes: bytes) // String(base64Encoding: bytes)
+        let _ : [UInt8] = Base64.encode(bytes: bytes)
+    }
+}
+
+let chromeEncodingString = timing(name: "Chromium: [UInt8] to String ") {
+    for _ in 1 ... runs {
+        let _ : String = Base64.encode(bytes: bytes)
+    }
+}
+
+let chromeEncodingData = timing(name: "Chromium: Data    to [UInt8]") {
+    for _ in 1 ... runs {
+        let _ : String = Base64.encode(bytes: data)
     }
 }
 
 print("------------------------------------------")
 print("Decoding")
 
-let foundationDecoding = timing(name: "Foundation") {
+let foundationDecodingFromString = timing(name: "Foundation: String to Data  ") {
     for _ in 1 ... runs {
         _ = Data(base64Encoded: base64)
     }
 }
 
-let base64Decoding = timing(name: "Base64    ") {
+let encodedData = Data(base64.utf8)
+let foundationDecodingFromData = timing(name: "Foundation: Data   to Data  ") {
     for _ in 1 ... runs {
-        _ = try! base64.base64decoded()
+        _ = Data(base64Encoded: encodedData)
     }
 }
 
-let chromeDecoding = timing(name: "Chromium  ") {
+let encodedUInt8Array = Array(base64.utf8)
+let chromeDecodingFromBytes = timing(name: "Chromium: [UInt8] to [UInt8]") {
     for _ in 1 ... runs {
-        _ = try! Base64.decodeChromium(bytes: [UInt8](base64.utf8)) // String(base64Encoding: bytes)
+        _ = try! Base64.decode(bytes: encodedUInt8Array)
+    }
+}
+
+let chromeDecodingFromString = timing(name: "Chromium: String  to [UInt8]") {
+    for _ in 1 ... runs {
+        _ = try! Base64.decode(string: base64)
+    }
+}
+
+let chromeDecodingFromData = timing(name: "Chromium: Data    to [UInt8]") {
+    for _ in 1 ... runs {
+        _ = try! Base64.decode(bytes: encodedData)
     }
 }
 
@@ -64,21 +90,21 @@ let chromeDecoding = timing(name: "Chromium  ") {
 // print("Results")
 
 var result: Int32 = 0
-if foundationEncoding < base64Encoding {
-    print("Base64 encoding must be at least as fast as Foundation encoding")
-    result = 1
-}
-
-if foundationDecoding < base64Decoding {
-    print("Base64 decoding must be at least as fast as Foundation decoding")
-    result = 1
-}
-
-if result == 0 {
-    let encodingGain = round(foundationEncoding / base64Encoding * 1000) / 1000
-    let decodingGain = round(foundationDecoding / base64Decoding * 1000) / 1000
-    print("Encoding: \(encodingGain)x")
-    print("Decoding: \(decodingGain)x")
-}
+//if foundationEncoding < base64Encoding {
+//    print("Base64 encoding must be at least as fast as Foundation encoding")
+//    result = 1
+//}
+//
+//if foundationDecoding < base64Decoding {
+//    print("Base64 decoding must be at least as fast as Foundation decoding")
+//    result = 1
+//}
+//
+//if result == 0 {
+//    let encodingGain = round(foundationEncoding / base64Encoding * 1000) / 1000
+//    let decodingGain = round(foundationDecoding / base64Decoding * 1000) / 1000
+//    print("Encoding: \(encodingGain)x")
+//    print("Decoding: \(decodingGain)x")
+//}
 
 exit(result)

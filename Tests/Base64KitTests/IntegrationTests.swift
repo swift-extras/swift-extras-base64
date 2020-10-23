@@ -4,12 +4,12 @@ import XCTest
 class IntegrationTests: XCTestCase {
     func testEncodeAndDecodingĨ() throws {
         var input = "Ĩ"
-        let output = try input.withUTF8 { (ptr) -> String in
-            let bytes = String(base64Encoding: ptr)
-            let decoded = try bytes.base64decoded()
-
-            return String(bytes: decoded, encoding: .utf8)!
+        let encoded = input.withUTF8 { (ptr) -> String in
+            Base64.encode(bytes: ptr)
         }
+        
+        let decoded = try Base64.decode(string: encoded)
+        let output = String(decoding: decoded, as: Unicode.UTF8.self)
 
         XCTAssertEqual(input, output)
     }
