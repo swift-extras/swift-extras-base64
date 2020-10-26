@@ -1,21 +1,3 @@
-coverage:
-  status:
-    project:
-      default: off
-    base64:
-      flags: base64
-      target: 100%
-    unittest:
-      flags: unittest
-    performance:
-      flags: performance
-flags:
-  base64:  
-    paths:
-    - Sources/Base64
-  performance:  
-    paths:
-    - Sources/PerformanceTest
-  unittests:
-    paths:
-    - Tests/Base64Tests
+ignore:
+  - "Tests"
+  - ".build"

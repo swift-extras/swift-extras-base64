@@ -9,15 +9,15 @@ on:
 
 jobs:
 
-  "sanity-Tests":
+  "validity-Tests":
     runs-on: macOS-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install swiftformat
       run: brew install swiftformat
-    - name: Run sanity
-      run: ./scripts/sanity.sh .
+    - name: Run validity
+      run: ./scripts/validity.sh .
 
   "tuxOS-Tests":
     runs-on: ubuntu-latest
@@ -26,8 +26,8 @@ jobs:
         images:
         - swift:5.1
         - swift:5.2
-        - swiftlang/swift:nightly-5.3-bionic
-        - swiftlang/swift:nightly-amazonlinux2
+        - swift:5.3
+        - swiftlang/swift:nightly-master
     container:
       image: ${{ matrix.images }}
     steps:
@@ -52,30 +52,28 @@ jobs:
         images:
         - swift:5.1
         - swift:5.2
-        - swiftlang/swift:nightly-5.3-bionic
-        - swiftlang/swift:nightly-amazonlinux2
+        - swift:5.3
+        - swiftlang/swift:nightly-master
     container:
       image: ${{ matrix.images }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build
-      run: swift build -c release
-    - name: Run test
-      run: .build/release/Base64KitPerformanceTest
+    - name: Build & run
+      run: swift run -c release
 
   "tuxOS-Integration-Tests":
     runs-on: ubuntu-latest
     strategy:
       matrix:
         images:
-        - swift:5.2
-        - swiftlang/swift:nightly-5.3
+        - swift:5.3
+        - swiftlang/swift:nightly-master
     container:
       image: ${{ matrix.images }}
     env:
       MAX_ALLOCS_ALLOWED_base64_decoding: 1000
-      MAX_ALLOCS_ALLOWED_base64_encoding: 2000
+      MAX_ALLOCS_ALLOWED_base64_encoding: 1000
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -108,7 +106,5 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build
-      run: swift build -c release
-    - name: Run test
-      run: .build/release/Base64KitPerformanceTest
+    - name: Build & run
+      run: swift run -c release
