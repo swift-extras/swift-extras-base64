@@ -30,10 +30,9 @@ to ensure speediness of this implementation. Encoding and decoding 1m times the 
 AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==
 ```
 
-#### macOS - swift 5.3
+Tests were run on a MacBook Pro (16-inch, late 2019). Processor: 2.4 GHz 8-Core Intel Core i9.
 
-MacBook Pro (15-inch, late 2016 - the first one with the butterfly keyboard). 
-Quad Core 2.7 GHz Intel Core i7
+#### macOS - swift 5.3
 
 |  | Encoding | Decoding |
 |:--|:--|:--|
@@ -42,8 +41,6 @@ Quad Core 2.7 GHz Intel Core i7
 | Speedup | 3x | 4x |
 
 #### Linux - swift 5.3
-
-Whatevar runs GitHub Actions 😉
 
 |  | Encoding | Decoding |
 |:--|:--|:--|
