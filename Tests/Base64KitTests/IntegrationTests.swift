@@ -7,7 +7,7 @@ class IntegrationTests: XCTestCase {
         let encoded = input.withUTF8 { (ptr) -> String in
             Base64.encode(bytes: ptr)
         }
-        
+
         let decoded = try Base64.decode(string: encoded)
         let output = String(decoding: decoded, as: Unicode.UTF8.self)
 

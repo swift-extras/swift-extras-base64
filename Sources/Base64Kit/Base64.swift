@@ -1,6 +1,5 @@
 
-public struct Base64 {
-    
+public enum Base64 {
     public struct EncodingOptions: OptionSet {
         public let rawValue: UInt
         public init(rawValue: UInt) { self.rawValue = rawValue }
@@ -8,7 +7,7 @@ public struct Base64 {
         public static let base64UrlAlphabet = EncodingOptions(rawValue: UInt(1 << 0))
         public static let omitPaddingCharacter = EncodingOptions(rawValue: UInt(1 << 1))
     }
-    
+
     public struct DecodingOptions: OptionSet {
         public let rawValue: UInt
         public init(rawValue: UInt) { self.rawValue = rawValue }
@@ -16,12 +15,11 @@ public struct Base64 {
         public static let base64UrlAlphabet = DecodingOptions(rawValue: UInt(1 << 0))
         public static let omitPaddingCharacter = DecodingOptions(rawValue: UInt(1 << 1))
     }
-    
 }
 
 //// MARK: - Extensions -
 
-//extension String {
+// extension String {
 //    @inlinable
 //    public init<Buffer: Collection>(base64Encoding bytes: Buffer, options: Base64.EncodingOptions = [])
 //        where Buffer.Element == UInt8 {
@@ -33,4 +31,4 @@ public struct Base64 {
 //        // of four.
 //        return try Base64.decode(encoded: self, options: options)
 //    }
-//}
+// }
