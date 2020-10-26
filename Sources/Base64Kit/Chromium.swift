@@ -128,7 +128,7 @@ extension Base64 {
     ]
 
     @inlinable
-    public static func encode<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    public static func encodeBytes<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> [UInt8] where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -141,11 +141,11 @@ extension Base64 {
             return result
         }
 
-        return self.encode(bytes: Array(bytes), options: options)
+        return self.encodeBytes(bytes: Array(bytes), options: options)
     }
 
     @inlinable
-    public static func encode<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    public static func encodeString<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> String where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -162,9 +162,9 @@ extension Base64 {
                 return result
             }
 
-            return self.encode(bytes: Array(bytes), options: options)
+            return self.encodeString(bytes: Array(bytes), options: options)
         } else {
-            let bytes: [UInt8] = self.encode(bytes: bytes, options: options)
+            let bytes: [UInt8] = self.encodeBytes(bytes: bytes, options: options)
             return String(decoding: bytes, as: Unicode.UTF8.self)
         }
         #else
