@@ -22,6 +22,7 @@ jobs:
   "tuxOS-Tests":
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         images:
         - swift:5.1
@@ -48,6 +49,7 @@ jobs:
   "tuxOS-Performance-Tests":
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         images:
         - swift:5.1
@@ -65,6 +67,7 @@ jobs:
   "tuxOS-Integration-Tests":
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         images:
         - swift:5.3
@@ -83,13 +86,20 @@ jobs:
 
   "macOS-Tests":
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode:
+        - Xcode_11.1.app
+        - Xcode_11.6.app
+        - Xcode_12.2.app
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Show all Xcode versions
       run: ls -an /Applications/ | grep Xcode*
     - name: Change Xcode command line tools
-      run: sudo xcode-select -s /Applications/Xcode_11.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}/Contents/Developer
     - name: SPM Build
       run: swift build
     - name: SPM Tests
@@ -103,8 +113,19 @@ jobs:
 
   "macOS-Performance-Tests":
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode:
+        - Xcode_11.1.app
+        - Xcode_11.6.app
+        - Xcode_12.2.app
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Change Xcode command line tools
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}/Contents/Developer
+    - name: Swift version
+      run: swift --version
     - name: Build & run
       run: swift run -c release
