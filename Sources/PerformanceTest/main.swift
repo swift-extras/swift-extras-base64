@@ -85,4 +85,3 @@ let chromeDecodingFromData = timing(name: "Chromium: Data    to [UInt8]") {
         _ = try! Base64.decode(bytes: encodedData)
     }
 }
-

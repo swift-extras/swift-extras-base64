@@ -37,7 +37,7 @@ jobs:
     - name: Test
       run: swift test --enable-code-coverage --enable-test-discovery
     - name: Convert coverage files
-      run: llvm-cov export -format="lcov" .build/debug/swift-base64-kitPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
+      run: llvm-cov export -format="lcov" .build/debug/swift-extras-base64PackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Install curl
       if: matrix.images != 'swiftlang/swift:nightly-amazonlinux2'
       run: apt-get update && apt-get install -y curl # required by the codecov action.
@@ -90,7 +90,7 @@ jobs:
       fail-fast: false
       matrix:
         xcode:
-        - Xcode_11.1.app
+        - Xcode_11.2.app
         - Xcode_11.6.app
         - Xcode_12.2.app
     steps:
@@ -107,7 +107,7 @@ jobs:
     - name: Xcode Tests
       run: |
         swift package generate-xcodeproj
-        xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-base64-kit-Package -enableCodeCoverage YES build test
+        xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-extras-base64-Package -enableCodeCoverage YES build test
     - name: Codecov
       run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -f *.coverage.txt
 
@@ -117,7 +117,7 @@ jobs:
       fail-fast: false
       matrix:
         xcode:
-        - Xcode_11.1.app
+        - Xcode_11.2.app
         - Xcode_11.6.app
         - Xcode_12.2.app
     steps:
