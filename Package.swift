@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-base64-kit",
+    name: "swift-extras-base64",
     products: [
-        .library(name: "Base64Kit", targets: ["Base64Kit"]),
+        .library(name: "ExtrasBase64", targets: ["ExtrasBase64"]),
     ],
     dependencies: [],
     targets: [
-        .target(name: "Base64Kit", dependencies: []),
-        .target(name: "PerformanceTest", dependencies: ["Base64Kit"]),
-        .testTarget(name: "Base64KitTests", dependencies: ["Base64Kit"]),
+        .target(name: "ExtrasBase64", dependencies: []),
+        .target(name: "PerformanceTest", dependencies: ["ExtrasBase64"]),
+        .testTarget(name: "ExtrasBase64Tests", dependencies: ["ExtrasBase64"]),
     ]
 )

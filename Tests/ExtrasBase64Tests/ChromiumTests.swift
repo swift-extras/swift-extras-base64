@@ -1,4 +1,4 @@
-import Base64Kit
+import ExtrasBase64
 import XCTest
 
 class ChromiumTests: XCTestCase {

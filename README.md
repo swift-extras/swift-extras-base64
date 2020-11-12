@@ -1,8 +1,8 @@
-# swift-base64-kit
+# swift-extras-base64
 
 [![Swift 5.1](https://img.shields.io/badge/Swift-5.1-blue.svg)](https://swift.org/download/)
-[![github-actions](https://github.com/fabianfett/swift-base64-kit/workflows/CI/badge.svg)](https://github.com/fabianfett/swift-base64-kit/actions)
-[![codecov](https://codecov.io/gh/fabianfett/swift-base64-kit/branch/main/graph/badge.svg)](https://codecov.io/gh/fabianfett/swift-base64)
+[![github-actions](https://github.com/swift-extras/swift-extras-base64/workflows/CI/badge.svg)](https://github.com/swift-extras/swift-extras-base64/actions)
+[![codecov](https://codecov.io/gh/swift-extras/swift-extras-base64/branch/main/graph/badge.svg)](https://codecov.io/gh/swift-extras/swift-extras-base64)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
 ![tuxOS](https://img.shields.io/badge/os-tuxOS-green.svg?style=flat)
 
@@ -23,7 +23,7 @@ A former implementation of this package [is used in `swift-nio`'s websocket impl
 
 ## Performance
 
-Super [simple performance test](https://github.com/fabianfett/swift-base64-kit/blob/main/Sources/Base64KitPerformanceTest/main.swift) 
+Super [simple performance test](https://github.com/swift-extras/swift-extras-base64/blob/main/Sources/PerformanceTest/main.swift) 
 to ensure speediness of this implementation. Encoding and decoding 1m times the base64 string:
 
 ```
@@ -37,7 +37,7 @@ Tests were run on a MacBook Pro (16-inch, late 2019). Processor: 2.4 GHz 8-Core 
 |  | Encoding | Decoding |
 |:--|:--|:--|
 | Foundation   | 2.08s | 2.15s |
-| swift-base64-kit | 0.66s | 0.54s |
+| swift-extras-base64 | 0.66s | 0.54s |
 | Speedup | 3x | 4x |
 
 #### Linux - swift 5.3
@@ -45,7 +45,7 @@ Tests were run on a MacBook Pro (16-inch, late 2019). Processor: 2.4 GHz 8-Core 
 |  | Encoding | Decoding |
 |:--|:--|:--|
 | Foundation   | 1.01s | 5.5s |
-| swift-base64-kit | 0.27s | 0.41s |
+| swift-extras-base64 | 0.27s | 0.41s |
 | Speedup | 3x | **~10x** |
 
 ## Literature for a faster algorithm

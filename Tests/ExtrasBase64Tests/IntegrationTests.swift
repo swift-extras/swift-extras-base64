@@ -1,4 +1,4 @@
-@testable import Base64Kit
+@testable import ExtrasBase64
 import XCTest
 
 class IntegrationTests: XCTestCase {
