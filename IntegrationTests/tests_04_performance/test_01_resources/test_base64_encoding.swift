@@ -1,4 +1,4 @@
-import Base64Kit
+import ExtrasBase64
 
 func run(identifier: String) {
     let bytes = Array(UInt8(0) ... UInt8(255))
