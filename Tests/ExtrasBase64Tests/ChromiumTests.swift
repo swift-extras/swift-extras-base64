@@ -85,26 +85,27 @@ class ChromiumTests: XCTestCase {
             XCTAssertEqual(error as? DecodingError, .invalidCharacter(240))
         }
     }
-    
+
     func testBase64DecodingOneTwoThreeFour() {
         let base64 = "AQIDBA=="
         let bytes: [UInt8] = [1, 2, 3, 4]
-        
-        XCTAssertEqual(Base64.encodeString(bytes: bytes), base64)
-        XCTAssertEqual(try Base64.decode(string: base64), bytes)    }
-    
-    func testBase64DecodingOneTwoThreeFourFive() {
-        let base64 = "AQIDBAU="
-        let bytes: [UInt8] = [1, 2, 3, 4, 5]
-        
+
         XCTAssertEqual(Base64.encodeString(bytes: bytes), base64)
         XCTAssertEqual(try Base64.decode(string: base64), bytes)
     }
-    
+
+    func testBase64DecodingOneTwoThreeFourFive() {
+        let base64 = "AQIDBAU="
+        let bytes: [UInt8] = [1, 2, 3, 4, 5]
+
+        XCTAssertEqual(Base64.encodeString(bytes: bytes), base64)
+        XCTAssertEqual(try Base64.decode(string: base64), bytes)
+    }
+
     func testBase64DecodingOneTwoThreeFourFiveSix() {
         let base64 = "AQIDBAUG"
         let bytes: [UInt8] = [1, 2, 3, 4, 5, 6]
-        
+
         XCTAssertEqual(Base64.encodeString(bytes: bytes), base64)
         XCTAssertEqual(try Base64.decode(string: base64), bytes)
     }
