@@ -341,7 +341,7 @@ extension Base64 {
             }
 
             // inIndex is the first index in the last chunk
-            let inIndex = fullchunks > 1 ? fullchunks * 4 : 0
+            let inIndex = fullchunks * 4
             let a0 = inBuffer[inIndex]
             let a1 = inBuffer[inIndex + 1]
             var a2: UInt8?
