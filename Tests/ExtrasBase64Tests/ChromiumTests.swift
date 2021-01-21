@@ -82,7 +82,7 @@ class ChromiumTests: XCTestCase {
 
     func testBase64DecodingWithPoop() {
         XCTAssertThrowsError(_ = try Base64.decode(bytes: "💩".utf8)) { error in
-            XCTAssertEqual(error as? DecodingError, .invalidCharacter(240))
+            XCTAssertEqual(error as? Base64.DecodingError, .invalidCharacter(240))
         }
     }
 
@@ -112,7 +112,7 @@ class ChromiumTests: XCTestCase {
 
     func testBase64DecodingWithInvalidLength() {
         XCTAssertThrowsError(_ = try Base64.decode(bytes: "AAAAA".utf8)) { error in
-            XCTAssertEqual(error as? DecodingError, .invalidLength)
+            XCTAssertEqual(error as? Base64.DecodingError, .invalidLength)
         }
     }
 
