@@ -329,6 +329,10 @@ extension Base64 {
 
     @inlinable
     public static func decode<Buffer: Collection>(bytes: Buffer, options: DecodingOptions = []) throws -> [UInt8] where Buffer.Element == UInt8 {
+        guard bytes.count > 0 else {
+            return []
+        }
+
         let decoded = try bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
             let outputLength = ((input.count + 3) / 4) * 3
 

@@ -42,6 +42,12 @@ class ChromiumTests: XCTestCase {
         XCTAssertEqual(decoded?.count, 0)
     }
 
+    func testDecodeEmptyBytes() throws {
+        var decoded: [UInt8]?
+        XCTAssertNoThrow(decoded = try Base64.decode(bytes: []))
+        XCTAssertEqual(decoded?.count, 0)
+    }
+
     func testBase64DecodingArrayOfNulls() throws {
         let expected = Array(repeating: UInt8(0), count: 10)
         var decoded: [UInt8]?
