@@ -1,11 +1,11 @@
 
 /// String extensions
-extension String {
-    public init<Buffer: Collection>(base32Encoding bytes: Buffer) where Buffer.Element == UInt8 {
+public extension String {
+    init<Buffer: Collection>(base32Encoding bytes: Buffer) where Buffer.Element == UInt8 {
         self = Base32.encodeString(bytes: bytes)
     }
 
-    public func base32decoded() throws -> [UInt8] {
+    func base32decoded() throws -> [UInt8] {
         try Base32.decode(string: self)
     }
 }
@@ -14,13 +14,13 @@ public enum Base32 {
     public enum DecodingError: Swift.Error, Equatable {
         case invalidCharacter(UInt8)
     }
-    
+
     /// Base32 Encode a buffer to an array of bytes
     public static func encodeBytes<Buffer: Collection>(bytes: Buffer) -> [UInt8] where Buffer.Element == UInt8 {
         let capacity = (bytes.count * 8 + 4) / 5
 
         let result = bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
-            return [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
+            [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
                 length = Self._encode(from: input, into: buffer)
             }
         }
@@ -39,7 +39,7 @@ public enum Base32 {
         if #available(OSX 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
             let result = bytes.withContiguousStorageIfAvailable { input in
                 String(unsafeUninitializedCapacity: capacity) { buffer -> Int in
-                    return Self._encode(from: input, into: buffer)
+                    Self._encode(from: input, into: buffer)
                 }
             }
             if let result = result {
@@ -56,7 +56,7 @@ public enum Base32 {
         return String(decoding: bytes, as: Unicode.UTF8.self)
         #endif
     }
-    
+
     /// Base32 decode string
     public static func decode(string encoded: String) throws -> [UInt8] {
         let decoded = try encoded.utf8.withContiguousStorageIfAvailable { (characterPointer) -> [UInt8] in
@@ -149,12 +149,12 @@ extension Base32 {
 
     private static func _decode(from input: UnsafeBufferPointer<UInt8>, into output: UnsafeMutableBufferPointer<UInt8>) throws -> Int {
         guard input.count != 0 else { return 0 }
-        
+
         return try self.decodeTable.withUnsafeBufferPointer { decodeTable in
             var bitsLeft: Int = 0
             var buffer: UInt32 = 0
             var outputIndex = 0
-            for i in 0..<input.count {
+            for i in 0 ..< input.count {
                 let index = Int(input[i])
                 let v = decodeTable[index]
                 // check for unexpected character
@@ -178,7 +178,7 @@ extension Base32 {
 
     private static func _encode(from input: UnsafeBufferPointer<UInt8>, into output: UnsafeMutableBufferPointer<UInt8>) -> Int {
         guard input.count != 0 else { return 0 }
-        
+
         return self.encodeTable.withUnsafeBufferPointer { encodeTable in
             var outputIndex = 0
             var i = 1
