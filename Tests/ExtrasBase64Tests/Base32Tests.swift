@@ -1,0 +1,86 @@
+import ExtrasBase64
+import XCTest
+
+class Base32Tests: XCTestCase {
+    // MARK: Encoding
+
+    func testEncodeEmptyData() {
+        let data = [UInt8]()
+        let encodedData: [UInt8] = Base32.encodeBytes(bytes: data)
+        XCTAssertEqual(encodedData.count, 0)
+    }
+
+    func testBase32EncodingArrayOfNulls() {
+        let data = Array(repeating: UInt8(0), count: 10)
+        let encodedData: [UInt8] = Base32.encodeBytes(bytes: data)
+        XCTAssertEqual(encodedData, [UInt8]("AAAAAAAAAAAAAAAA".utf8))
+    }
+
+    func testBase32EncodingAllTheBytesSequentially() {
+        let data = Array(UInt8(0) ... UInt8(255))
+        let encodedData = Base32.encodeBytes(bytes: data)
+        XCTAssertEqual(encodedData, [UInt8]("AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYPSAIJCEMSCKJRHFAUSUKZMFUXC6MBRGIZTINJWG44DSOR3HQ6T4P2AIFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2UKVLFOWCZLJNVYXK6L5QGCYTDMRSWMZ3INFVGW3DNNZXXA4LSON2HK5TXPB4XU634PV7H7AEBQKBYJBMGQ6EITCULRSGY5D4QSGJJHFEVS2LZRGM2TOOJ3HU7UCQ2FI5EUWTKPKFJVKV2ZLNOV6YLDMVTWS23NN5YXG5LXPF5X274BQOCYPCMLRWHZDE4VS6MZXHM7UGR2LJ5JVOW27MNTWW33TO55X7A4HROHZHF43T6R2PK5PWO33XP6DY7F47U6X3PP6HZ7L57Z7P674".utf8))
+    }
+
+    // MARK: Decoding
+
+    func testDecodeEmptyString() throws {
+        var decoded: [UInt8]?
+        XCTAssertNoThrow(decoded = try Base32.decode(string: ""))
+        XCTAssertEqual(decoded?.count, 0)
+    }
+
+    func testDecodeEmptyBytes() throws {
+        var decoded: [UInt8]?
+        XCTAssertNoThrow(decoded = try Base32.decode(bytes: []))
+        XCTAssertEqual(decoded?.count, 0)
+    }
+
+    func testBase32DecodingArrayOfNulls() throws {
+        let expected = Array(repeating: UInt8(0), count: 10)
+        var decoded: [UInt8]?
+        var string = "AAAAAAAAAAAAAAAAA"
+        string.makeContiguousUTF8()
+        XCTAssertNoThrow(decoded = try Base32.decode(string: string))
+        XCTAssertEqual(decoded, expected)
+    }
+
+    func testBase32DecodingAllTheBytesSequentially() {
+        let base64 = "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYPSAIJCEMSCKJRHFAUSUKZMFUXC6MBRGIZTINJWG44DSOR3HQ6T4P2AIFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2UKVLFOWCZLJNVYXK6L5QGCYTDMRSWMZ3INFVGW3DNNZXXA4LSON2HK5TXPB4XU634PV7H7AEBQKBYJBMGQ6EITCULRSGY5D4QSGJJHFEVS2LZRGM2TOOJ3HU7UCQ2FI5EUWTKPKFJVKV2ZLNOV6YLDMVTWS23NN5YXG5LXPF5X274BQOCYPCMLRWHZDE4VS6MZXHM7UGR2LJ5JVOW27MNTWW33TO55X7A4HROHZHF43T6R2PK5PWO33XP6DY7F47U6X3PP6HZ7L57Z7P674"
+
+        let expected = Array(UInt8(0) ... UInt8(255))
+        var decoded: [UInt8]?
+        XCTAssertNoThrow(decoded = try Base32.decode(bytes: base64.utf8))
+        XCTAssertEqual(decoded, expected)
+    }
+
+    func testBase32DecodingWithPoop() {
+        XCTAssertThrowsError(_ = try Base32.decode(bytes: "💩".utf8)) { error in
+            XCTAssertEqual(error as? Base32.DecodingError, .invalidCharacter(240))
+        }
+    }
+
+    func testBase32DecodingOneTwoThreeFour() {
+        let base64 = "AEBAGBA"
+        let bytes: [UInt8] = [1, 2, 3, 4]
+
+        XCTAssertEqual(Base32.encodeString(bytes: bytes), base64)
+        XCTAssertEqual(try Base32.decode(string: base64), bytes)
+    }
+
+    func testBase32DecodingOneTwoThreeFourFive() {
+        let base64 = "AEBAGBAF"
+        let bytes: [UInt8] = [1, 2, 3, 4, 5]
+
+        XCTAssertEqual(Base32.encodeString(bytes: bytes), base64)
+        XCTAssertEqual(try Base32.decode(string: base64), bytes)
+    }
+
+    func testBase32DecodingOneTwoThreeFourFiveSix() {
+        let base64 = "AEBAGBAFAY"
+        let bytes: [UInt8] = [1, 2, 3, 4, 5, 6]
+
+        XCTAssertEqual(Base32.encodeString(bytes: bytes), base64)
+        XCTAssertEqual(try Base32.decode(string: base64), bytes)
+    }
+}
