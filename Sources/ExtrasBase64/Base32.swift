@@ -35,7 +35,8 @@ public enum Base32 {
     public static func encodeString<Buffer: Collection>(bytes: Buffer) -> String where Buffer.Element == UInt8 {
         let capacity = (bytes.count * 8 + 4) / 5
 
-        if #available(macOS 11.0, *) {
+        #if swift(>=5.3)
+        if #available(OSX 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
             let result = bytes.withContiguousStorageIfAvailable { input in
                 String(unsafeUninitializedCapacity: capacity) { buffer -> Int in
                     return Self._encode(from: input, into: buffer)
@@ -50,6 +51,10 @@ public enum Base32 {
             let bytes: [UInt8] = self.encodeBytes(bytes: bytes)
             return String(decoding: bytes, as: Unicode.UTF8.self)
         }
+        #else
+        let bytes: [UInt8] = self.encodeBytes(bytes: bytes)
+        return String(decoding: bytes, as: Unicode.UTF8.self)
+        #endif
     }
     
     /// Base32 decode string
