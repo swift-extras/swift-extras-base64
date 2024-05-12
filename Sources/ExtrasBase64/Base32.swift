@@ -162,81 +162,94 @@ extension Base32 {
     private static func _decode(from input: UnsafeBufferPointer<UInt8>, into output: UnsafeMutableBufferPointer<UInt8>) throws -> Int {
         guard input.count != 0 else { return 0 }
 
-        return try self.decodeTable.withUnsafeBufferPointer { decodeTable in
-            var bitsLeft: Int = 0
-            var buffer: UInt32 = 0
-            var outputIndex = 0
-            var i = 0
-            loop: while i < input.count {
-                let index = Int(input[i])
-                i += 1
-                let v = decodeTable[index]
-                switch v {
-                case 0x80:
-                    throw DecodingError.invalidCharacter(UInt8(index))
-                case 0x40:
-                    continue
-                case 0xC0:
-                    break loop
-                default:
-                    buffer <<= 5
-                    buffer |= v
-                    bitsLeft += 5
-                    if bitsLeft >= 8 {
-                        let result = (buffer >> (bitsLeft - 8))
-                        output[outputIndex] = UInt8(result & 0xFF)
-                        outputIndex += 1
-                        bitsLeft -= 8
-                    }
+        var bitsLeft = 0
+        var buffer: UInt32 = 0
+        var outputIndex = 0
+        var i = 0
+        loop: while i < input.count {
+            let index = Int(input[i])
+            i += 1
+            let v = self.decodeTable[index]
+            switch v {
+            case 0x80:
+                throw DecodingError.invalidCharacter(UInt8(index))
+            case 0x40:
+                continue
+            case 0xC0:
+                break loop
+            default:
+                buffer <<= 5
+                buffer |= v
+                bitsLeft += 5
+                if bitsLeft >= 8 {
+                    let result = (buffer >> (bitsLeft - 8))
+                    output[outputIndex] = UInt8(result & 0xFF)
+                    outputIndex += 1
+                    bitsLeft -= 8
                 }
             }
-            // Any characters left should be padding
-            while i < input.count {
-                let index = Int(input[i])
-                guard decodeTable[index] == 0xC0 else { throw DecodingError.invalidCharacter(UInt8(index)) }
-                i += 1
-            }
-            return outputIndex
         }
+        // Any characters left should be padding
+        while i < input.count {
+            let index = Int(input[i])
+            guard self.decodeTable[index] == 0xC0 else { throw DecodingError.invalidCharacter(UInt8(index)) }
+            i += 1
+        }
+        return outputIndex
     }
 
     private static func _encode(from input: UnsafeBufferPointer<UInt8>, into output: UnsafeMutableBufferPointer<UInt8>, options: EncodingOptions) -> Int {
         guard input.count != 0 else { return 0 }
 
         var outputIndex = 0
-        var i = 1
-        var bitsLeft = 8
-        var buffer = Int(input[0])
-        while i < input.count {
-            if bitsLeft < 5 {
-                buffer <<= 8
-                buffer |= Int(input[i])
-                i += 1
-                bitsLeft += 8
-            }
-            let unmaskedIndex = (buffer >> (bitsLeft - 5))
-            let index = 0x1F & unmaskedIndex
-            bitsLeft -= 5
-            output[outputIndex] = self.encodeTable[index]
-            outputIndex += 1
+        let inputMinusLastBlock = (input.count / 5) * 5
+        var i = 0
+        while i < inputMinusLastBlock {
+            let v1 = Int(input[i])
+            let v2 = Int(input[i + 1])
+            let v3 = Int(input[i + 2])
+            let v4 = Int(input[i + 3])
+            let v5 = Int(input[i + 4])
+            i += 5
+            output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
+            output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
+            output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
+            output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
+            output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
+            output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
+            output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3 + (v5 & 0xE0) >> 5]
+            output[outputIndex + 7] = self.encodeTable[v5 & 0x1F]
+            outputIndex += 8
         }
-
-        while bitsLeft > 0 {
-            if bitsLeft < 5 {
-                let pad = 5 - bitsLeft
-                buffer <<= pad
-                bitsLeft += pad
-            }
-            let unmaskedIndex = (buffer >> (bitsLeft - 5))
-            let index = 0x1F & unmaskedIndex
-            bitsLeft -= 5
-            output[outputIndex] = self.encodeTable[index]
-            outputIndex += 1
+        let remainingBytes = input.count - inputMinusLastBlock
+        var v1 = 0, v2 = 0, v3 = 0, v4 = 0
+        switch remainingBytes {
+        case 0:
+            return outputIndex
+        case 4:
+            v4 = Int(input[i + 3])
+            output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3]
+            output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
+            fallthrough
+        case 3:
+            v3 = Int(input[i + 2])
+            output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
+            fallthrough
+        case 2:
+            v2 = Int(input[i + 1])
+            output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
+            output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
+            fallthrough
+        case 1:
+            v1 = Int(input[i])
+            output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
+            output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
+        default:
+            preconditionFailure("Shouldn't get here")
         }
-
+        outputIndex += (remainingBytes * 8 + 4) / 5
         if options.contains(.includePadding) {
-            let withPaddingSize = ((outputIndex + 7) / 8) * 8
-            while outputIndex < withPaddingSize {
+            while outputIndex < output.count {
                 output[outputIndex] = UInt8(ascii: "=")
                 outputIndex += 1
             }
