@@ -25,10 +25,10 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.1
-        - swift:5.2
-        - swift:5.3
-        - swiftlang/swift:nightly-master
+        - swift:5.8
+        - swift:5.9
+        - swift:5.10
+        - swiftlang/swift:nightly-jammy
     container:
       image: ${{ matrix.images }}
     steps:
@@ -70,8 +70,8 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.3
-        - swiftlang/swift:nightly-master
+        - swift:5.10
+        - swiftlang/swift:nightly-jammy
     container:
       image: ${{ matrix.images }}
     env:
