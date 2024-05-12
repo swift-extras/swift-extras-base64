@@ -74,6 +74,8 @@ jobs:
     env:
       MAX_ALLOCS_ALLOWED_base64_decoding: 1000
       MAX_ALLOCS_ALLOWED_base64_encoding: 1000
+      MAX_ALLOCS_ALLOWED_base32_decoding: 1000
+      MAX_ALLOCS_ALLOWED_base32_encoding: 1000
     steps:
     - name: Checkout
       uses: actions/checkout@v4
