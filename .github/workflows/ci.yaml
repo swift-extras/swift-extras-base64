@@ -13,7 +13,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Install swiftformat
       run: brew install swiftformat
     - name: Run validity
@@ -33,9 +33,9 @@ jobs:
       image: ${{ matrix.images }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Test
-      run: swift test --enable-code-coverage --enable-test-discovery
+      run: swift test --enable-code-coverage
     - name: Convert coverage files
       run: llvm-cov export -format="lcov" .build/debug/swift-extras-base64PackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Install curl
@@ -52,15 +52,12 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.8
-        - swift:5.9
         - swift:5.10
-        - swiftlang/swift:nightly-master
     container:
       image: ${{ matrix.images }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Build & run
       run: swift run -c release
 
@@ -79,51 +76,29 @@ jobs:
       MAX_ALLOCS_ALLOWED_base64_encoding: 1000
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Test
       run: ./run-tests.sh
       working-directory: ./IntegrationTests
 
   "macOS-Tests":
-    runs-on: macOS-latest
+    runs-on: macOS-13
     strategy:
       fail-fast: false
-      matrix:
-        xcode:
-        - Xcode_14.3.app
-        - Xcode_15.4.app
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Show all Xcode versions
-      run: ls -an /Applications/ | grep Xcode*
-    - name: Change Xcode command line tools
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}/Contents/Developer
-    - name: SPM Build
-      run: swift build
     - name: SPM Tests
       run: swift test --parallel -Xswiftc -DDEBUG
-    - name: Xcode Tests
-      run: |
-        swift package generate-xcodeproj
-        xcodebuild -quiet -parallel-testing-enabled YES -scheme swift-extras-base64-Package -enableCodeCoverage YES build test
     - name: Codecov
       run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -f *.coverage.txt
 
   "macOS-Performance-Tests":
-    runs-on: macOS-latest
+    runs-on: macOS-13
     strategy:
       fail-fast: false
-      matrix:
-        xcode:
-        - Xcode_14.3.app
-        - Xcode_15.4.app
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Change Xcode command line tools
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}/Contents/Developer
-    - name: Swift version
-      run: swift --version
+      uses: actions/checkout@v4
     - name: Build & run
       run: swift run -c release
