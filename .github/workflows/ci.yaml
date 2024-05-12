@@ -68,7 +68,6 @@ jobs:
       matrix:
         images:
         - swift:5.10
-        - swiftlang/swift:nightly-jammy
     container:
       image: ${{ matrix.images }}
     env:
