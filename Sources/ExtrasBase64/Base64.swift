@@ -84,7 +84,7 @@ extension Base64 {
     }
 
     @usableFromInline
-    internal static let encodePaddingCharacter: UInt8 = 61
+    static let encodePaddingCharacter: UInt8 = 61
 
     @usableFromInline
     static let encoding0: [UInt8] = [

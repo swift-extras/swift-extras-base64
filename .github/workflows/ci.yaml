@@ -52,9 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.1
-        - swift:5.2
-        - swift:5.3
+        - swift:5.8
+        - swift:5.9
+        - swift:5.10
         - swiftlang/swift:nightly-master
     container:
       image: ${{ matrix.images }}
@@ -90,12 +90,11 @@ jobs:
       fail-fast: false
       matrix:
         xcode:
-        - Xcode_11.2.app
-        - Xcode_11.6.app
-        - Xcode_12.2.app
+        - Xcode_14.3.app
+        - Xcode_15.4.app
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Show all Xcode versions
       run: ls -an /Applications/ | grep Xcode*
     - name: Change Xcode command line tools
@@ -117,9 +116,8 @@ jobs:
       fail-fast: false
       matrix:
         xcode:
-        - Xcode_11.2.app
-        - Xcode_11.6.app
-        - Xcode_12.2.app
+        - Xcode_14.3.app
+        - Xcode_15.4.app
     steps:
     - name: Checkout
       uses: actions/checkout@v2

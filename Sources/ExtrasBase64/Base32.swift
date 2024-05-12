@@ -30,7 +30,7 @@ public enum Base32 {
         bytes: Buffer,
         options: EncodingOptions = []
     ) -> [UInt8] where Buffer.Element == UInt8 {
-        let capacity = (bytes.count * 8 + 4) / 5
+        let capacity = ((bytes.count + 4) / 5) * 8
 
         let result = bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
             [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
