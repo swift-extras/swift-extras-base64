@@ -1,3 +1,4 @@
+
 /// String extensions
 public extension String {
     /// Create a base32 encoded string from a buffer
@@ -249,7 +250,8 @@ extension Base32 {
         }
         outputIndex += (remainingBytes * 8 + 4) / 5
         if options.contains(.includePadding) {
-            while outputIndex < output.count {
+            let fullOutputSize = ((outputIndex + 7) / 8) * 8
+            while outputIndex < fullOutputSize {
                 output[outputIndex] = UInt8(ascii: "=")
                 outputIndex += 1
             }
