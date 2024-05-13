@@ -89,7 +89,7 @@ class Base32Tests: XCTestCase {
         let bytes: [UInt8] = [1, 2, 3, 4, 5, 6]
 
         XCTAssertEqual(Base32.encodeString(bytes: bytes, options: .includePadding), base32)
-        XCTAssertEqual(try Base32.decode(string: base32), bytes)
+        XCTAssertEqual(try base32.base32decoded(), bytes)
     }
 
     func testBase32EncodeFoobar() {
