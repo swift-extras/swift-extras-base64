@@ -19,7 +19,7 @@ let package = Package(
             ],
             path: "Benchmarks/BaseN",
             plugins: [
-                .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
+                .plugin(name: "BenchmarkPlugin", package: "package-benchmark"),
             ]
         ),
     ]
