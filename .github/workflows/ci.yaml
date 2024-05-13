@@ -89,9 +89,7 @@ jobs:
     - name: SPM Tests
       run: swift test --parallel --enable-code-coverage -Xswiftc -DDEBUG
     - name: Convert coverage files
-      run: xcrun llvm-cov export -format="lcov" \
-        .build/debug/swift-extras-base64PackageTests.xctest/Contents/MacOs/swift-extras-base64PackageTest \
-        -instr-profile .build/debug/codecov/default.profdata > info.lcov
+      run: xcrun llvm-cov export -format="lcov" .build/debug/swift-extras-base64PackageTests.xctest/Contents/MacOS/swift-extras-base64PackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v4
       with:
