@@ -38,11 +38,8 @@ jobs:
       run: swift test --enable-code-coverage
     - name: Convert coverage files
       run: llvm-cov export -format="lcov" .build/debug/swift-extras-base64PackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > info.lcov
-    - name: Install curl
-      if: matrix.images != 'swiftlang/swift:nightly-amazonlinux2'
-      run: apt-get update && apt-get install -y curl # required by the codecov action.
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         file: info.lcov
 
@@ -90,9 +87,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: SPM Tests
-      run: swift test --parallel -Xswiftc -DDEBUG
-    - name: Codecov
-      run: bash <(curl -s https://codecov.io/bash) -t ${{secrets.CODECOV_TOKEN}} -f *.coverage.txt
+      run: swift test --parallel --enable-code-coverage -Xswiftc -DDEBUG
+    - name: Convert coverage files
+      run: llvm-cov export -format="lcov" \
+        .build/debug/swift-extras-base64PackageTests.xctest/Contents/MacOs/swift-extras-base64PackageTest \
+        -instr-profile .build/debug/codecov/default.profdata > info.lcov
+    - name: Upload to codecov.io
+      uses: codecov/codecov-action@v4
+      with:
+        file: info.lcov
 
   "macOS-Performance-Tests":
     runs-on: macOS-13
