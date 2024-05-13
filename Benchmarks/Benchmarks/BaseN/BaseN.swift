@@ -18,13 +18,13 @@ let benchmarks = {
         benchmark.startMeasurement()
 
         for _ in benchmark.scaledIterations {
-            blackHole(Base32.encodeString(bytes: bytes))
+            blackHole(Base32.encodeToString(bytes: bytes))
         }
     }
 
     Benchmark("Base32.decode") { benchmark in
         let bytes = Array(UInt8(0) ... UInt8(255))
-        let base32 = Base32.encodeString(bytes: bytes)
+        let base32 = Base32.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
 
@@ -39,13 +39,13 @@ let benchmarks = {
         benchmark.startMeasurement()
 
         for _ in benchmark.scaledIterations {
-            blackHole(Base64.encodeString(bytes: bytes))
+            blackHole(Base64.encodeToString(bytes: bytes))
         }
     }
 
     Benchmark("Base64.decode") { benchmark in
         let bytes = Array(UInt8(0) ... UInt8(255))
-        let base64 = Base64.encodeString(bytes: bytes)
+        let base64 = Base64.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
 
