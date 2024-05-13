@@ -83,4 +83,32 @@ class Base32Tests: XCTestCase {
         XCTAssertEqual(Base32.encodeString(bytes: bytes), base32)
         XCTAssertEqual(try Base32.decode(string: base32), bytes)
     }
+
+    func testBase32DecodingPadding() {
+        let base32 = "AEBAGBAFAY======"
+        let bytes: [UInt8] = [1, 2, 3, 4, 5, 6]
+
+        XCTAssertEqual(Base32.encodeString(bytes: bytes, options: .includePadding), base32)
+        XCTAssertEqual(try base32.base32decoded(), bytes)
+    }
+
+    func testBase32EncodeFoobar() {
+        XCTAssertEqual(String(base32Encoding: "".utf8), "")
+        XCTAssertEqual(String(base32Encoding: "f".utf8), "MY")
+        XCTAssertEqual(String(base32Encoding: "fo".utf8), "MZXQ")
+        XCTAssertEqual(String(base32Encoding: "foo".utf8), "MZXW6")
+        XCTAssertEqual(String(base32Encoding: "foob".utf8), "MZXW6YQ")
+        XCTAssertEqual(String(base32Encoding: "fooba".utf8), "MZXW6YTB")
+        XCTAssertEqual(String(base32Encoding: "foobar".utf8), "MZXW6YTBOI")
+    }
+
+    func testBase32EncodeFoobarWithPadding() {
+        XCTAssertEqual(String(base32Encoding: "".utf8, options: .includePadding), "")
+        XCTAssertEqual(String(base32Encoding: "f".utf8, options: .includePadding), "MY======")
+        XCTAssertEqual(String(base32Encoding: "fo".utf8, options: .includePadding), "MZXQ====")
+        XCTAssertEqual(String(base32Encoding: "foo".utf8, options: .includePadding), "MZXW6===")
+        XCTAssertEqual(String(base32Encoding: "foob".utf8, options: .includePadding), "MZXW6YQ=")
+        XCTAssertEqual(String(base32Encoding: "fooba".utf8, options: .includePadding), "MZXW6YTB")
+        XCTAssertEqual(String(base32Encoding: "foobar".utf8, options: .includePadding), "MZXW6YTBOI======")
+    }
 }

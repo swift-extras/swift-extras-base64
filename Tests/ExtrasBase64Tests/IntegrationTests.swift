@@ -4,7 +4,7 @@ import XCTest
 class IntegrationTests: XCTestCase {
     func testEncodeAndDecodingĨ() throws {
         var input = "Ĩ"
-        let encoded = input.withUTF8 { (ptr) -> String in
+        let encoded = input.withUTF8 { ptr -> String in
             Base64.encodeString(bytes: ptr)
         }
 

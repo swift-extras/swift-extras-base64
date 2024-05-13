@@ -84,7 +84,7 @@ extension Base64 {
     }
 
     @usableFromInline
-    internal static let encodePaddingCharacter: UInt8 = 61
+    static let encodePaddingCharacter: UInt8 = 61
 
     @usableFromInline
     static let encoding0: [UInt8] = [
@@ -212,7 +212,7 @@ extension Base64 {
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
 
-        if let result = bytes.withContiguousStorageIfAvailable({ (input) -> [UInt8] in
+        if let result = bytes.withContiguousStorageIfAvailable({ input -> [UInt8] in
             [UInt8](unsafeUninitializedCapacity: newCapacity) { buffer, length in
                 Self._encodeChromium(input: input, buffer: buffer, length: &length, options: options)
             }
@@ -231,8 +231,8 @@ extension Base64 {
 
         #if swift(>=5.3)
         if #available(OSX 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
-            if let result = bytes.withContiguousStorageIfAvailable({ (input) -> String in
-                String(unsafeUninitializedCapacity: newCapacity) { (buffer) -> Int in
+            if let result = bytes.withContiguousStorageIfAvailable({ input -> String in
+                String(unsafeUninitializedCapacity: newCapacity) { buffer -> Int in
                     var length = newCapacity
                     Self._encodeChromium(input: input, buffer: buffer, length: &length, options: options)
                     return length
@@ -315,8 +315,8 @@ extension Base64 {
         assert(encoding0.count == 256)
         assert(encoding1.count == 256)
 
-        return try encoding0.withUnsafeBufferPointer { (e0) -> R in
-            try encoding1.withUnsafeBufferPointer { (e1) -> R in
+        return try encoding0.withUnsafeBufferPointer { e0 -> R in
+            try encoding1.withUnsafeBufferPointer { e1 -> R in
                 try body(e0, e1)
             }
         }
@@ -343,14 +343,14 @@ extension Base64 {
 
     @inlinable
     public static func decode(string encoded: String, options: DecodingOptions = []) throws -> [UInt8] {
-        let decoded = try encoded.utf8.withContiguousStorageIfAvailable { (characterPointer) -> [UInt8] in
+        let decoded = try encoded.utf8.withContiguousStorageIfAvailable { characterPointer -> [UInt8] in
             guard characterPointer.count > 0 else {
                 return []
             }
 
             let outputLength = ((characterPointer.count + 3) / 4) * 3
 
-            return try characterPointer.withMemoryRebound(to: UInt8.self) { (input) -> [UInt8] in
+            return try characterPointer.withMemoryRebound(to: UInt8.self) { input -> [UInt8] in
                 try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
                     try Self._decodeChromium(from: input, into: output, length: &length, options: options)
                 }
@@ -372,7 +372,7 @@ extension Base64 {
             return []
         }
 
-        let decoded = try bytes.withContiguousStorageIfAvailable { (input) -> [UInt8] in
+        let decoded = try bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
             let outputLength = ((input.count + 3) / 4) * 3
 
             return try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
@@ -488,10 +488,10 @@ extension Base64 {
         assert(decoding2.count == 256)
         assert(decoding3.count == 256)
 
-        return try decoding0.withUnsafeBufferPointer { (d0) -> R in
-            try decoding1.withUnsafeBufferPointer { (d1) -> R in
-                try decoding2.withUnsafeBufferPointer { (d2) -> R in
-                    try decoding3.withUnsafeBufferPointer { (d3) -> R in
+        return try decoding0.withUnsafeBufferPointer { d0 -> R in
+            try decoding1.withUnsafeBufferPointer { d1 -> R in
+                try decoding2.withUnsafeBufferPointer { d2 -> R in
+                    try decoding3.withUnsafeBufferPointer { d3 -> R in
                         try body(d0, d1, d2, d3)
                     }
                 }
