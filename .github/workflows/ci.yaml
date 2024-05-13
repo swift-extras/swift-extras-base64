@@ -80,7 +80,7 @@ jobs:
       working-directory: ./IntegrationTests
 
   "macOS-Tests":
-    runs-on: macOS-13
+    runs-on: macOS-14
     strategy:
       fail-fast: false
     steps:
