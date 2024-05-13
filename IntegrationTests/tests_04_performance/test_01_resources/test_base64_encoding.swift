@@ -6,7 +6,7 @@ func run(identifier: String) {
 
     measure(identifier: identifier) {
         for _ in 0 ..< 1000 {
-            base64 = Base64.encodeString(bytes: bytes)
+            base64 = Base64.encodeToString(bytes: bytes)
         }
 
         return base64?.count ?? 0

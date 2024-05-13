@@ -35,19 +35,19 @@ let foundationEncodingData = timing(name: "Foundation: Data to Data    ") {
 
 let chromeEncodingBytes = timing(name: "Chromium: [UInt8] to [UInt8]") {
     for _ in 1 ... runs {
-        let _: [UInt8] = Base64.encodeBytes(bytes: bytes)
+        let _: [UInt8] = Base64.encodeToBytes(bytes: bytes)
     }
 }
 
 let chromeEncodingString = timing(name: "Chromium: [UInt8] to String ") {
     for _ in 1 ... runs {
-        let _: String = Base64.encodeString(bytes: bytes)
+        let _: String = Base64.encodeToString(bytes: bytes)
     }
 }
 
 let chromeEncodingData = timing(name: "Chromium: Data    to [UInt8]") {
     for _ in 1 ... runs {
-        let _: String = Base64.encodeString(bytes: data)
+        let _: String = Base64.encodeToString(bytes: data)
     }
 }
 

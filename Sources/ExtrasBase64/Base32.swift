@@ -3,7 +3,7 @@
 public extension String {
     /// Create a base32 encoded string from a buffer
     init<Buffer: Collection>(base32Encoding bytes: Buffer, options: Base32.EncodingOptions = []) where Buffer.Element == UInt8 {
-        self = Base32.encodeString(bytes: bytes, options: options)
+        self = Base32.encodeToString(bytes: bytes, options: options)
     }
 
     /// Decode base32 encoded strin
@@ -19,7 +19,7 @@ public enum Base32 {
         public let rawValue: UInt
         public init(rawValue: UInt) { self.rawValue = rawValue }
 
-        public static let includePadding = EncodingOptions(rawValue: UInt(1 << 0))
+        public static let omitPaddingCharacter = EncodingOptions(rawValue: UInt(1 << 0))
     }
 
     public enum DecodingError: Swift.Error, Equatable {
@@ -27,7 +27,7 @@ public enum Base32 {
     }
 
     /// Base32 Encode a buffer to an array of bytes
-    public static func encodeBytes<Buffer: Collection>(
+    public static func encodeToBytes<Buffer: Collection>(
         bytes: Buffer,
         options: EncodingOptions = []
     ) -> [UInt8] where Buffer.Element == UInt8 {
@@ -42,11 +42,11 @@ public enum Base32 {
             return result
         }
 
-        return self.encodeBytes(bytes: Array(bytes))
+        return self.encodeToBytes(bytes: Array(bytes))
     }
 
     /// Base32 Encode a buffer to a string
-    public static func encodeString<Buffer: Collection>(
+    public static func encodeToString<Buffer: Collection>(
         bytes: Buffer,
         options: EncodingOptions = []
     ) -> String where Buffer.Element == UInt8 {
@@ -62,9 +62,9 @@ public enum Base32 {
                 return result
             }
 
-            return self.encodeString(bytes: Array(bytes))
+            return self.encodeToString(bytes: Array(bytes))
         } else {
-            let bytes: [UInt8] = self.encodeBytes(bytes: bytes)
+            let bytes: [UInt8] = self.encodeToBytes(bytes: bytes)
             return String(decoding: bytes, as: Unicode.UTF8.self)
         }
     }
@@ -249,7 +249,7 @@ extension Base32 {
             preconditionFailure("Shouldn't get here")
         }
         outputIndex += (remainingBytes * 8 + 4) / 5
-        if options.contains(.includePadding) {
+        if !options.contains(.omitPaddingCharacter) {
             let fullOutputSize = ((outputIndex + 7) / 8) * 8
             while outputIndex < fullOutputSize {
                 output[outputIndex] = UInt8(ascii: "=")

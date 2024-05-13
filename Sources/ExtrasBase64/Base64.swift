@@ -62,7 +62,7 @@ public extension String {
     init<Buffer: Collection>(base64Encoding bytes: Buffer, options: Base64.EncodingOptions = [])
         where Buffer.Element == UInt8
     {
-        self = Base64.encodeString(bytes: bytes, options: options)
+        self = Base64.encodeToString(bytes: bytes, options: options)
     }
 
     func base64decoded(options: Base64.DecodingOptions = []) throws -> [UInt8] {
@@ -207,7 +207,7 @@ extension Base64 {
     ]
 
     @inlinable
-    public static func encodeBytes<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    public static func encodeToBytes<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> [UInt8] where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -220,11 +220,11 @@ extension Base64 {
             return result
         }
 
-        return self.encodeBytes(bytes: Array(bytes), options: options)
+        return self.encodeToBytes(bytes: Array(bytes), options: options)
     }
 
     @inlinable
-    public static func encodeString<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
+    public static func encodeToString<Buffer: Collection>(bytes: Buffer, options: EncodingOptions = [])
         -> String where Buffer.Element == UInt8
     {
         let newCapacity = ((bytes.count + 2) / 3) * 4
@@ -241,9 +241,9 @@ extension Base64 {
                 return result
             }
 
-            return self.encodeString(bytes: Array(bytes), options: options)
+            return self.encodeToString(bytes: Array(bytes), options: options)
         } else {
-            let bytes: [UInt8] = self.encodeBytes(bytes: bytes, options: options)
+            let bytes: [UInt8] = self.encodeToBytes(bytes: bytes, options: options)
             return String(decoding: bytes, as: Unicode.UTF8.self)
         }
         #else
