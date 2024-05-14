@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macOS-14]
 
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
         if: ${{ env.hasBenchmark == '1' }}
         run: |
           cd Benchmarks
-          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update pull_request
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update pull_request --filter "^(?!Foundation).*"
       - name: Switch to branch 'main'
         if: ${{ env.hasBenchmark == '1' }}
         run: |
@@ -56,7 +56,7 @@ jobs:
         if: ${{ env.hasBenchmark == '1' }}
         run: |
           cd Benchmarks
-          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update main
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update main --filter "^(?!Foundation).*"
       - name: Compare PR and main
         if: ${{ env.hasBenchmark == '1' }}
         id: benchmark

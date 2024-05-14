@@ -43,21 +43,6 @@ jobs:
       with:
         file: info.lcov
 
-  "tuxOS-Performance-Tests":
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        images:
-        - swift:5.10
-    container:
-      image: ${{ matrix.images }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Build & run
-      run: swift run -c release
-
   "macOS-Tests":
     runs-on: macOS-14
     strategy:
@@ -73,13 +58,3 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         file: info.lcov
-
-  "macOS-Performance-Tests":
-    runs-on: macOS-13
-    strategy:
-      fail-fast: false
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Build & run
-      run: swift run -c release

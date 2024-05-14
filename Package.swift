@@ -11,7 +11,6 @@ let package = Package(
     dependencies: [],
     targets: [
         .target(name: "ExtrasBase64", dependencies: []),
-        .target(name: "PerformanceTest", dependencies: ["ExtrasBase64"]),
         .testTarget(name: "ExtrasBase64Tests", dependencies: ["ExtrasBase64"]),
     ]
 )

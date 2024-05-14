@@ -1,5 +1,6 @@
 import Benchmark
 import ExtrasBase64
+import Foundation
 
 let benchmarks = {
     Benchmark.defaultConfiguration = .init(
@@ -51,6 +52,50 @@ let benchmarks = {
 
         for _ in benchmark.scaledIterations {
             try blackHole(Base64.decode(string: base64))
+        }
+    }
+
+    Benchmark("Foundation.encodeToData") { benchmark in
+        let bytes = Array(UInt8(0) ... UInt8(255))
+        let data = Data(bytes)
+
+        benchmark.startMeasurement()
+
+        for _ in benchmark.scaledIterations {
+            blackHole(data.base64EncodedData())
+        }
+    }
+
+    Benchmark("Foundation.encodeToString") { benchmark in
+        let bytes = Array(UInt8(0) ... UInt8(255))
+        let data = Data(bytes)
+
+        benchmark.startMeasurement()
+
+        for _ in benchmark.scaledIterations {
+            blackHole(data.base64EncodedString())
+        }
+    }
+
+    Benchmark("Foundation.decodeString") { benchmark in
+        let bytes = Array(UInt8(0) ... UInt8(255))
+        let base64 = Base64.encodeToString(bytes: bytes)
+
+        benchmark.startMeasurement()
+
+        for _ in benchmark.scaledIterations {
+            blackHole(Data(base64Encoded: base64))
+        }
+    }
+
+    Benchmark("Foundation.decodeStringIgnoreUnknownCharacters") { benchmark in
+        let bytes = Array(UInt8(0) ... UInt8(255))
+        let base64 = Base64.encodeToString(bytes: bytes)
+
+        benchmark.startMeasurement()
+
+        for _ in benchmark.scaledIterations {
+            blackHole(Data(base64Encoded: base64, options: .ignoreUnknownCharacters))
         }
     }
 }
