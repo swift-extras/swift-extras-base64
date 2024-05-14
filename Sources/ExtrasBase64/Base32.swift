@@ -6,9 +6,9 @@ public extension String {
         self = Base32.encodeToString(bytes: bytes, options: options)
     }
 
-    /// Decode base32 encoded strin
-    func base32decoded() throws -> [UInt8] {
-        try Base32.decode(string: self)
+    /// Decode base32 encoded string
+    func base32decoded(options: Base32.DecodingOptions = []) throws -> [UInt8] {
+        try Base32.decode(string: self, options: options)
     }
 }
 
