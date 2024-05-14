@@ -34,6 +34,17 @@ let benchmarks = {
         }
     }
 
+    Benchmark("Base32.decodeIgnoreNullCharacters") { benchmark in
+        let bytes = Array(UInt8(0) ... UInt8(255))
+        let base32 = Base32.encodeToString(bytes: bytes)
+
+        benchmark.startMeasurement()
+
+        for _ in benchmark.scaledIterations {
+            try blackHole(Base32.decode(string: base32, options: .allowNullCharacters))
+        }
+    }
+
     Benchmark("Base64.encode") { benchmark in
         let bytes = Array(UInt8(0) ... UInt8(255))
 

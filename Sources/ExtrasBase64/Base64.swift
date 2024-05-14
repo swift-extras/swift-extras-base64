@@ -334,11 +334,23 @@ extension Base64 {
         public static let omitPaddingCharacter = DecodingOptions(rawValue: UInt(1 << 1))
     }
 
-    public enum DecodingError: Error, Equatable {
-        case invalidLength
-        case invalidCharacter(UInt8)
-        case unexpectedPaddingCharacter
-        case unexpectedEnd
+    public struct DecodingError: Error, Equatable {
+        fileprivate enum _Internal: Error, Equatable {
+            case invalidLength
+            case invalidCharacter(UInt8)
+            case unexpectedPaddingCharacter
+            case unexpectedEnd
+        }
+
+        fileprivate let value: _Internal
+        fileprivate init(_ value: _Internal) {
+            self.value = value
+        }
+
+        public static var invalidLength: Self { .init(.invalidLength) }
+        public static func invalidCharacter(_ character: UInt8) -> Self { .init(.invalidCharacter(character)) }
+        public static var unexpectedPaddingCharacter: Self { .init(.unexpectedPaddingCharacter) }
+        public static var unexpectedEnd: Self { .init(.unexpectedEnd) }
     }
 
     @inlinable
