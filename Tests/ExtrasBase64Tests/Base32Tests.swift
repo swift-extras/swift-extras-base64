@@ -149,4 +149,15 @@ class Base32Tests: XCTestCase {
         XCTAssertEqual(try "MZXW6YTB".base32decoded(), .init("fooba".utf8))
         XCTAssertEqual(try "MZXW6YTBOI======".base32decoded(), .init("foobar".utf8))
     }
+
+    func testBase32EncodeDecode() throws {
+        for _ in 0 ..< 100 {
+            let buffer: [UInt8] = (0 ..< Int.random(in: 1 ..< 8192)).map { _ in UInt8.random(in: .min ... .max) }
+            let base32 = String(base32Encoding: buffer)
+            let buffer2 = try base32.base32decoded(options: .allowNullCharacters)
+            let buffer3 = try base32.base32decoded()
+            XCTAssertEqual(buffer, buffer2)
+            XCTAssertEqual(buffer, buffer3)
+        }
+    }
 }
