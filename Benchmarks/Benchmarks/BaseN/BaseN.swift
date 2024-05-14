@@ -84,7 +84,7 @@ let benchmarks = {
         benchmark.startMeasurement()
 
         for _ in benchmark.scaledIterations {
-            blackHole(Data(base64Encoded: base64, options: .ignoreUnknownCharacters))
+            blackHole(Data(base64Encoded: base64))
         }
     }
 
@@ -95,7 +95,7 @@ let benchmarks = {
         benchmark.startMeasurement()
 
         for _ in benchmark.scaledIterations {
-            blackHole(Data(base64Encoded: base64))
+            blackHole(Data(base64Encoded: base64, options: .ignoreUnknownCharacters))
         }
     }
 }

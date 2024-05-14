@@ -46,7 +46,7 @@ jobs:
         if: ${{ env.hasBenchmark == '1' }}
         run: |
           cd Benchmarks
-          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update pull_request --filter "^(?\!Foundation).*"
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update pull_request --filter "^(?!Foundation).*"
       - name: Switch to branch 'main'
         if: ${{ env.hasBenchmark == '1' }}
         run: |
@@ -56,7 +56,7 @@ jobs:
         if: ${{ env.hasBenchmark == '1' }}
         run: |
           cd Benchmarks
-          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update main --filter "^(?\!Foundation).*"
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update main --filter "^(?!Foundation).*"
       - name: Compare PR and main
         if: ${{ env.hasBenchmark == '1' }}
         id: benchmark
