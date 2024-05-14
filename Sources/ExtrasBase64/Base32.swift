@@ -30,8 +30,17 @@ public enum Base32 {
         public static let allowNullCharacters = DecodingOptions(rawValue: UInt(1 << 0))
     }
 
-    public enum DecodingError: Swift.Error, Equatable {
-        case invalidCharacter
+    public struct DecodingError: Swift.Error, Equatable {
+        enum _Internal {
+            case invalidCharacter
+        }
+
+        fileprivate let value: _Internal
+        init(_ value: _Internal) {
+            self.value = value
+        }
+
+        public static var invalidCharacter: Self { .init(.invalidCharacter) }
     }
 
     /// Base32 Encode a buffer to an array of bytes
