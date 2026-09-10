@@ -1,7 +1,7 @@
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 extension String {
     /// Create a base32 encoded string from the bytes in `bytes`.
     @inlinable
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public init(base32Encoding bytes: Span<UInt8>, options: Base32.EncodingOptions = []) {
         self = Base32.encodeToString(bytes: bytes, options: options)
     }
@@ -9,13 +9,13 @@ extension String {
 
 // MARK: - Encoding -
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 extension Base32 {
     /// Write the base32 encoding of `bytes` to `output`.
     ///
     /// `output` must be at least `encodedLength(bytesCount:options:)` bytes long.
     ///
     /// - Returns: The number of bytes written to `output`.
+    @available(macOS 10.14.4, *)
     @inlinable
     public static func encode(
         bytes: Span<UInt8>,
@@ -35,6 +35,7 @@ extension Base32 {
     /// free capacity. Elements already present in `output` are preserved.
     ///
     /// - Returns: The number of bytes appended to `output`.
+    @available(macOS 10.14.4, *)
     @inlinable
     @discardableResult
     public static func encode(
@@ -55,6 +56,7 @@ extension Base32 {
     /// Return the base32 encoding of `bytes` as ASCII characters.
     ///
     /// Use `encode(bytes:into:options:)` instead to avoid the allocation.
+    @available(macOS 10.14.4, *)
     @inlinable
     public static func encodeToBytes(
         bytes: Span<UInt8>,
@@ -72,6 +74,7 @@ extension Base32 {
     /// Return the base32 encoding of `bytes` as a string.
     ///
     /// Use `encode(bytes:into:options:)` instead to avoid the allocation.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     @inlinable
     public static func encodeToString(
         bytes: Span<UInt8>,
@@ -89,7 +92,6 @@ extension Base32 {
 
 // MARK: - Decoding -
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 extension Base32 {
     /// Write the base32 decoding of `bytes` to `output`.
     ///
@@ -97,6 +99,7 @@ extension Base32 {
     ///
     /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
     /// - Returns: The number of bytes written to `output`.
+    @available(macOS 10.14.4, *)
     @inlinable
     public static func decode(
         bytes: Span<UInt8>,
@@ -125,6 +128,7 @@ extension Base32 {
     ///
     /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
     /// - Returns: The number of bytes appended to `output`.
+    @available(macOS 10.14.4, *)
     @inlinable
     @discardableResult
     public static func decode(
