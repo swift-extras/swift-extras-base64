@@ -1,8 +1,11 @@
-@testable import ExtrasBase64
-import XCTest
+import Testing
 
-class IntegrationTests: XCTestCase {
-    func testEncodeAndDecodingĨ() throws {
+@testable import ExtrasBase64
+
+@Suite
+struct IntegrationTests {
+    @Test
+    func encodeAndDecodingĨ() throws {
         var input = "Ĩ"
         let encoded = input.withUTF8 { ptr -> String in
             Base64.encodeToString(bytes: ptr)
@@ -11,6 +14,6 @@ class IntegrationTests: XCTestCase {
         let decoded = try Base64.decode(string: encoded)
         let output = String(decoding: decoded, as: Unicode.UTF8.self)
 
-        XCTAssertEqual(input, output)
+        #expect(input == output)
     }
 }

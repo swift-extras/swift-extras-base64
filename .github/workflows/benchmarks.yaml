@@ -6,9 +6,10 @@ on:
     branches:
       - main
     paths:
-    - '**.swift'
-    - '**.yml'
-    
+      - '**.swift'
+      - '**.yaml'
+      - '**.yml'
+
 jobs:
   benchmark-delta:
 
@@ -21,7 +22,7 @@ jobs:
         os: [ubuntu-latest, macOS-14]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

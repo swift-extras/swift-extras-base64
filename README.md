@@ -1,6 +1,6 @@
 # swift-extras-base64
 
-[![Swift 5.1](https://img.shields.io/badge/Swift-5.1-blue.svg)](https://swift.org/download/)
+[![Swift 6.2](https://img.shields.io/badge/Swift-6.2-blue.svg)](https://swift.org/download/)
 [![github-actions](https://github.com/swift-extras/swift-extras-base64/workflows/CI/badge.svg)](https://github.com/swift-extras/swift-extras-base64/actions)
 [![codecov](https://codecov.io/gh/swift-extras/swift-extras-base64/branch/main/graph/badge.svg)](https://codecov.io/gh/swift-extras/swift-extras-base64)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg?style=flat)
