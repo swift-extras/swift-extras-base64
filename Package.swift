@@ -5,19 +5,31 @@ import PackageDescription
 
 let package = Package(
     name: "swift-extras-base64",
-    platforms: [
-        .macOS(.v11),
-        .iOS(.v14),
-        .tvOS(.v14),
-        .watchOS(.v7),
-    ],
     products: [
         .library(name: "ExtrasBase64", targets: ["ExtrasBase64"])
     ],
     dependencies: [],
     targets: [
-        .target(name: "ExtrasBase64", dependencies: []),
+        .target(name: "ExtrasBase64", dependencies: [], swiftSettings: swiftSettings),
         .testTarget(name: "ExtrasBase64Tests", dependencies: ["ExtrasBase64"]),
     ],
     swiftLanguageModes: [.v6]
 )
+
+var swiftSettings: [SwiftSetting] {
+    [
+        .strictMemorySafety(),
+        .treatAllWarnings(as: .error),
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("ImmutableWeakCaptures"),
+        .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
+        .enableExperimentalFeature("LifetimeDependence"),
+        .enableExperimentalFeature("Lifetimes"),
+        .enableUpcomingFeature("LifetimeDependence"),
+        .enableUpcomingFeature("ImmutableWeakCaptures"),
+    ]
+}

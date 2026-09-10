@@ -59,11 +59,11 @@ public enum Base32 {
         bytes: some Collection<UInt8>,
         options: EncodingOptions = []
     ) -> [UInt8] {
-        let capacity = encodedLength(bytesCount: bytes.count)
+        let capacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        let result = bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
-            [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
-                length = Self._encode(from: input, into: buffer, options: options)
+        let result = bytes.withContiguousStorageIfAvailable { input in
+            unsafe [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
+                length = unsafe Self._encode(from: input, into: buffer, options: options)
             }
         }
         if let result {
@@ -79,52 +79,22 @@ public enum Base32 {
         bytes: some Collection<UInt8>,
         options: EncodingOptions = []
     ) -> String {
-        let capacity = encodedLength(bytesCount: bytes.count)
+        if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+            let capacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        let result = bytes.withContiguousStorageIfAvailable { input in
-            String(unsafeUninitializedCapacity: capacity) { buffer -> Int in
-                Self._encode(from: input, into: buffer, options: options)
+            let result = bytes.withContiguousStorageIfAvailable { input in
+                unsafe String(unsafeUninitializedCapacity: capacity) { buffer in
+                    unsafe Self._encode(from: input, into: buffer, options: options)
+                }
             }
-        }
-        if let result = result {
-            return result
-        }
-
-        return self.encodeToString(bytes: Array(bytes), options: options)
-    }
-
-    @inlinable
-    public static func encode(
-        bytes: Span<UInt8>,
-        into output: inout MutableSpan<UInt8>,
-        options: EncodingOptions = []
-    ) -> Int {
-        bytes.withUnsafeBufferPointer { input in
-            output.withUnsafeMutableBufferPointer { output in
-                Self._encode(from: input, into: output, options: options)
+            if let result {
+                return result
             }
-        }
-    }
 
-    /// Append the base32 encoding of `bytes` to `output`.
-    ///
-    /// `output` must have at least `encodedLength(bytesCount:options:)` bytes of
-    /// free capacity. Elements already present in `output` are preserved.
-    ///
-    /// - Returns: The number of bytes appended to `output`.
-    @inlinable
-    public static func encode(
-        bytes: Span<UInt8>,
-        into output: inout OutputSpan<UInt8>,
-        options: EncodingOptions = []
-    ) -> Int {
-        bytes.withUnsafeBufferPointer { input in
-            output.withUnsafeMutableBufferPointer { output, initializedCount in
-                let free = UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
-                let written = Self._encode(from: input, into: free, options: options)
-                initializedCount += written
-                return written
-            }
+            return self.encodeToString(bytes: Array(bytes), options: options)
+        } else {
+            let encoded: [UInt8] = self.encodeToBytes(bytes: bytes, options: options)
+            return String(decoding: encoded, as: Unicode.UTF8.self)
         }
     }
 
@@ -139,19 +109,19 @@ public enum Base32 {
         string encoded: String,
         options: DecodingOptions = []
     ) throws -> [UInt8] {
-        let decoded = try encoded.utf8.withContiguousStorageIfAvailable { characterPointer -> [UInt8] in
+        let decoded = try unsafe encoded.utf8.withContiguousStorageIfAvailable { characterPointer -> [UInt8] in
             guard characterPointer.count > 0 else {
                 return []
             }
 
             let capacity = decodedLength(bytesCount: encoded.utf8.count)
 
-            return try characterPointer.withMemoryRebound(to: UInt8.self) { input -> [UInt8] in
-                try [UInt8](unsafeUninitializedCapacity: capacity) { output, length in
+            return unsafe try characterPointer.withMemoryRebound(to: UInt8.self) { input -> [UInt8] in
+                unsafe try [UInt8](unsafeUninitializedCapacity: capacity) { output, length in
                     if options.contains(.allowNullCharacters) {
-                        length = try Self._decode(from: input[...], into: output[...])
+                        length = unsafe try Self._decode(from: input[...], into: output[...])
                     } else {
-                        length = try Self._strictDecode(from: input, into: output)
+                        length = unsafe try Self._strictDecode(from: input, into: output)
                     }
                 }
             }
@@ -179,11 +149,11 @@ public enum Base32 {
         let decoded = try bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
             let outputLength = decodedLength(bytesCount: input.count)
 
-            return try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
+            return unsafe try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
                 if options.contains(.allowNullCharacters) {
-                    length = try Self._decode(from: input[...], into: output[...])
+                    length = unsafe try Self._decode(from: input[...], into: output[...])
                 } else {
-                    length = try Self._strictDecode(from: input, into: output)
+                    length = unsafe try Self._strictDecode(from: input, into: output)
                 }
             }
         }
@@ -193,56 +163,6 @@ public enum Base32 {
         }
 
         return try self.decode(bytes: Array(bytes), options: options)
-    }
-
-    @inlinable
-    public static func decode(
-        bytes: Span<UInt8>,
-        into output: inout MutableSpan<UInt8>,
-        options: DecodingOptions = []
-    ) throws -> Int {
-        guard bytes.count > 0 else {
-            return 0
-        }
-
-        return try bytes.withUnsafeBufferPointer { input in
-            try output.withUnsafeMutableBufferPointer { output in
-                if options.contains(.allowNullCharacters) {
-                    try Self._decode(from: input[...], into: output[...])
-                } else {
-                    try Self._strictDecode(from: input, into: output)
-                }
-            }
-        }
-    }
-
-    @inlinable
-    public static func decode(
-        bytes: Span<UInt8>,
-        into output: inout OutputSpan<UInt8>,
-        options: DecodingOptions = []
-    ) throws -> Int {
-        guard bytes.count > 0 else {
-            return 0
-        }
-
-        return try bytes.withUnsafeBufferPointer { input in
-            try output.withUnsafeMutableBufferPointer { output, initializedCount in
-                // Rebase for both paths so each returns a count relative to the free
-                // region. `_decode` reports an index into whatever slice it is given,
-                // while `_strictDecode` reports one relative to its buffer's start.
-                let free = UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
-                let written: Int
-                if options.contains(.allowNullCharacters) {
-                    written = try Self._decode(from: input[...], into: free[...])
-                } else {
-                    written = try Self._strictDecode(from: input, into: free)
-                }
-
-                initializedCount += written
-                return written
-            }
-        }
     }
 }
 
@@ -340,28 +260,28 @@ extension Base32 {
         let inputMinusLastBlock = (input.count - 1) & ~0x7
         var i = 0
         while i < inputMinusLastBlock {
-            let v1 = self.strictDecodeTable[Int(input[i])]
-            let v2 = self.strictDecodeTable[Int(input[i + 1])]
-            let v3 = self.strictDecodeTable[Int(input[i + 2])]
-            let v4 = self.strictDecodeTable[Int(input[i + 3])]
-            let v5 = self.strictDecodeTable[Int(input[i + 4])]
-            let v6 = self.strictDecodeTable[Int(input[i + 5])]
-            let v7 = self.strictDecodeTable[Int(input[i + 6])]
-            let v8 = self.strictDecodeTable[Int(input[i + 7])]
+            let v1 = unsafe self.strictDecodeTable[Int(input[i])]
+            let v2 = unsafe self.strictDecodeTable[Int(input[i + 1])]
+            let v3 = unsafe self.strictDecodeTable[Int(input[i + 2])]
+            let v4 = unsafe self.strictDecodeTable[Int(input[i + 3])]
+            let v5 = unsafe self.strictDecodeTable[Int(input[i + 4])]
+            let v6 = unsafe self.strictDecodeTable[Int(input[i + 5])]
+            let v7 = unsafe self.strictDecodeTable[Int(input[i + 6])]
+            let v8 = unsafe self.strictDecodeTable[Int(input[i + 7])]
             let vCombined = v1 | v2 | v3 | v4 | v5 | v6 | v7 | v8
             if (vCombined & ~0x1F) != 0 {
                 throw DecodingError.invalidCharacter
             }
             i += 8
-            output[outputIndex] = (v1 << 3) | (v2 >> 2)
-            output[outputIndex + 1] = (v2 << 6) | (v3 << 1) | (v4 >> 4)
-            output[outputIndex + 2] = (v4 << 4) | (v5 >> 1)
-            output[outputIndex + 3] = (v5 << 7) | (v6 << 2) | (v7 >> 3)
-            output[outputIndex + 4] = (v7 << 5) | v8
+            unsafe output[outputIndex] = (v1 << 3) | (v2 >> 2)
+            unsafe output[outputIndex + 1] = (v2 << 6) | (v3 << 1) | (v4 >> 4)
+            unsafe output[outputIndex + 2] = (v4 << 4) | (v5 >> 1)
+            unsafe output[outputIndex + 3] = (v5 << 7) | (v6 << 2) | (v7 >> 3)
+            unsafe output[outputIndex + 4] = (v7 << 5) | v8
             outputIndex += 5
         }
 
-        return try self._decode(from: input[i...], into: output[outputIndex...])
+        return unsafe try self._decode(from: input[i...], into: output[outputIndex...])
     }
 
     /// Decode Base32 with the possibility of null characters or padding
@@ -370,14 +290,14 @@ extension Base32 {
         from input: UnsafeBufferPointer<UInt8>.SubSequence,
         into output: UnsafeMutableBufferPointer<UInt8>.SubSequence
     ) throws -> Int {
-        guard input.count != 0 else { return output.startIndex }
-        var output = output
+        guard unsafe input.count != 0 else { return unsafe output.startIndex }
+        var output = unsafe output
         var bitsLeft = 0
         var buffer: UInt32 = 0
-        var outputIndex = output.startIndex
-        var i = input.startIndex
-        loop: while i < input.endIndex {
-            let index = Int(input[i])
+        var outputIndex = unsafe output.startIndex
+        var i = unsafe input.startIndex
+        loop: while unsafe i < input.endIndex {
+            let index = unsafe Int(input[i])
             i += 1
             let v = self.decodeTable[index]
             switch v {
@@ -393,15 +313,15 @@ extension Base32 {
                 bitsLeft += 5
                 if bitsLeft >= 8 {
                     let result = (buffer >> (bitsLeft - 8))
-                    output[outputIndex] = UInt8(result & 0xFF)
+                    unsafe output[outputIndex] = UInt8(result & 0xFF)
                     outputIndex += 1
                     bitsLeft -= 8
                 }
             }
         }
         // Any characters left should be padding
-        while i < input.endIndex {
-            let index = Int(input[i])
+        while unsafe i < input.endIndex {
+            let index = unsafe Int(input[i])
             guard self.decodeTable[index] == 0xC0 else { throw DecodingError.invalidCharacter }
             i += 1
         }
@@ -423,20 +343,20 @@ extension Base32 {
         let inputMinusLastBlock = (input.count / 5) * 5
         var i = 0
         while i < inputMinusLastBlock {
-            let v1 = Int(input[i])
-            let v2 = Int(input[i + 1])
-            let v3 = Int(input[i + 2])
-            let v4 = Int(input[i + 3])
-            let v5 = Int(input[i + 4])
+            let v1 = unsafe Int(input[i])
+            let v2 = unsafe Int(input[i + 1])
+            let v3 = unsafe Int(input[i + 2])
+            let v4 = unsafe Int(input[i + 3])
+            let v5 = unsafe Int(input[i + 4])
             i += 5
-            output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
-            output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
-            output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
-            output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
-            output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
-            output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
-            output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3 + (v5 & 0xE0) >> 5]
-            output[outputIndex + 7] = self.encodeTable[v5 & 0x1F]
+            unsafe output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
+            unsafe output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
+            unsafe output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
+            unsafe output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
+            unsafe output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
+            unsafe output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
+            unsafe output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3 + (v5 & 0xE0) >> 5]
+            unsafe output[outputIndex + 7] = self.encodeTable[v5 & 0x1F]
             outputIndex += 8
         }
         let remainingBytes = input.count - inputMinusLastBlock
@@ -448,23 +368,23 @@ extension Base32 {
         case 0:
             return outputIndex
         case 4:
-            v4 = Int(input[i + 3])
-            output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3]
-            output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
+            v4 = unsafe Int(input[i + 3])
+            unsafe output[outputIndex + 6] = self.encodeTable[(v4 & 0x3) << 3]
+            unsafe output[outputIndex + 5] = self.encodeTable[(v4 & 0x7C) >> 2]
             fallthrough
         case 3:
-            v3 = Int(input[i + 2])
-            output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
+            v3 = unsafe Int(input[i + 2])
+            unsafe output[outputIndex + 4] = self.encodeTable[(v3 & 0xF) << 1 + (v4 & 0x80) >> 7]
             fallthrough
         case 2:
-            v2 = Int(input[i + 1])
-            output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
-            output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
+            v2 = unsafe Int(input[i + 1])
+            unsafe output[outputIndex + 3] = self.encodeTable[(v2 & 0x1) << 4 + (v3 & 0xF0) >> 4]
+            unsafe output[outputIndex + 2] = self.encodeTable[(v2 & 0x3E) >> 1]
             fallthrough
         case 1:
-            v1 = Int(input[i])
-            output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
-            output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
+            v1 = unsafe Int(input[i])
+            unsafe output[outputIndex + 1] = self.encodeTable[(v1 & 0x7) << 2 + (v2 & 0xC0) >> 6]
+            unsafe output[outputIndex] = self.encodeTable[(v1 & 0xF8) >> 3]
         default:
             preconditionFailure("Shouldn't get here")
         }
@@ -472,7 +392,7 @@ extension Base32 {
         if !options.contains(.omitPaddingCharacter) {
             let fullOutputSize = ((outputIndex + 7) / 8) * 8
             while outputIndex < fullOutputSize {
-                output[outputIndex] = UInt8(ascii: "=")
+                unsafe output[outputIndex] = UInt8(ascii: "=")
                 outputIndex += 1
             }
         }
