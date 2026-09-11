@@ -10,6 +10,10 @@ on:
       - "**.yaml"
       - "**.yml"
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   benchmark-delta:
     runs-on: ${{ matrix.os }}
@@ -84,11 +88,11 @@ jobs:
           echo 'EOF' >> $GITHUB_ENV
       - name: Comment PR
         if: ${{ env.hasBenchmark == '1' }}
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           message: ${{ env.PRTEST }}
-          comment_tag: benchmark-ci-comment
+          comment-tag: benchmark-ci-comment
       - name: Exit with correct status
         run: |
           exit ${{ env.exitStatus }}
