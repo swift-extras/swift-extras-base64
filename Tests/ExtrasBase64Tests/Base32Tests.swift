@@ -180,14 +180,11 @@ struct Base32Tests {
     @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
     @Test(arguments: [Base32.EncodingOptions(), .omitPaddingCharacter])
     func encodeIntoSpansMatchesEncodeToBytes(options: Base32.EncodingOptions) {
-        // Lengths 0...9 cover every remainder class mod 5, which is where the
-        // unpadded length calculation differs from the padded one.
         for length in 0...9 {
             let bytes = (0..<length).map { UInt8(truncatingIfNeeded: $0 &* 7 &+ 1) }
             let expected = Base32.encodeToBytes(bytes: bytes, options: options)
             let capacity = Base32.encodedLength(bytesCount: length, options: options)
 
-            // Exactly-sized buffer: also pins `encodedLength` against the encoder.
             var storage = [UInt8](repeating: 0, count: capacity)
             let written = bytes.withUnsafeBufferPointer { input -> Int in
                 var output = storage.mutableSpan
@@ -196,11 +193,23 @@ struct Base32Tests {
             #expect(written == expected.count, "length \(length)")
             #expect(storage == expected, "length \(length)")
 
-            let appended = [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
-                bytes.withUnsafeBufferPointer { input in
-                    _ = Base32.encode(bytes: input.span, into: &output, options: options)
+            let appended: [UInt8]
+
+            #if swift(>=6.3)
+                appended = [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                    bytes.withUnsafeBufferPointer { input in
+                        _ = Base32.encode(bytes: input.span, into: &output, options: options)
+                    }
                 }
-            }
+            #else
+                appended = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                    var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                    bytes.withUnsafeBufferPointer { input in
+                        _ = Base32.encode(bytes: input.span, into: &output, options: options)
+                    }
+                    initializedCount = output.finalize(for: buffer)
+                }
+            #endif
             #expect(appended == expected, "length \(length)")
         }
     }
@@ -213,12 +222,25 @@ struct Base32Tests {
         let expected = Base32.encodeToBytes(bytes: bytes)
 
         var written = 0
-        let appended = [UInt8](capacity: prefix.count + expected.count) { (output: inout OutputSpan<UInt8>) in
-            for byte in prefix { output.append(byte) }
-            bytes.withUnsafeBufferPointer { input in
-                written = Base32.encode(bytes: input.span, into: &output)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = [UInt8](capacity: prefix.count + expected.count) { (output: inout OutputSpan<UInt8>) in
+                for byte in prefix { output.append(byte) }
+                bytes.withUnsafeBufferPointer { input in
+                    written = Base32.encode(bytes: input.span, into: &output)
+                }
             }
-        }
+        #else
+            appended = [UInt8](unsafeUninitializedCapacity: prefix.count + expected.count) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                for byte in prefix { output.append(byte) }
+                bytes.withUnsafeBufferPointer { input in
+                    written = Base32.encode(bytes: input.span, into: &output)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
         #expect(written == expected.count)
         #expect(appended == prefix + expected)
 
@@ -246,11 +268,23 @@ struct Base32Tests {
         #expect(written == expected.count)
         #expect(Array(storage[..<written]) == expected)
 
-        let appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
-            try encoded.withUnsafeBufferPointer { input in
-                _ = try Base32.decode(bytes: input.span, into: &output)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                try encoded.withUnsafeBufferPointer { input in
+                    _ = try Base32.decode(bytes: input.span, into: &output)
+                }
             }
-        }
+        #else
+            appended = try [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                try encoded.withUnsafeBufferPointer { input in
+                    _ = try Base32.decode(bytes: input.span, into: &output)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
         #expect(appended == expected)
     }
 
@@ -263,12 +297,25 @@ struct Base32Tests {
 
         var written = 0
         let capacity = prefix.count + ((encoded.count + 7) / 8) * 5
-        let appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
-            for byte in prefix { output.append(byte) }
-            try encoded.withUnsafeBufferPointer { input in
-                written = try Base32.decode(bytes: input.span, into: &output, options: options)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                for byte in prefix { output.append(byte) }
+                try encoded.withUnsafeBufferPointer { input in
+                    written = try Base32.decode(bytes: input.span, into: &output, options: options)
+                }
             }
-        }
+        #else
+            appended = try [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                for byte in prefix { output.append(byte) }
+                try encoded.withUnsafeBufferPointer { input in
+                    written = try Base32.decode(bytes: input.span, into: &output, options: options)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
 
         #expect(written == expected.count)
         #expect(appended == prefix + expected)

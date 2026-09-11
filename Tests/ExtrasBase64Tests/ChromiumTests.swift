@@ -176,11 +176,23 @@ struct ChromiumTests {
         #expect(written == expected.count)
         #expect(storage == expected)
 
-        let appended = [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
-            bytes.withUnsafeBufferPointer { input in
-                _ = Base64.encode(bytes: input.span, into: &output, options: options)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                bytes.withUnsafeBufferPointer { input in
+                    _ = Base64.encode(bytes: input.span, into: &output, options: options)
+                }
             }
-        }
+        #else
+            appended = [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                bytes.withUnsafeBufferPointer { input in
+                    _ = Base64.encode(bytes: input.span, into: &output, options: options)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
         #expect(appended == expected)
     }
 
@@ -192,12 +204,25 @@ struct ChromiumTests {
         let expected = Base64.encodeToBytes(bytes: bytes)
 
         var written = 0
-        let appended = [UInt8](capacity: prefix.count + expected.count) { (output: inout OutputSpan<UInt8>) in
-            for byte in prefix { output.append(byte) }
-            bytes.withUnsafeBufferPointer { input in
-                written = Base64.encode(bytes: input.span, into: &output)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = [UInt8](capacity: prefix.count + expected.count) { (output: inout OutputSpan<UInt8>) in
+                for byte in prefix { output.append(byte) }
+                bytes.withUnsafeBufferPointer { input in
+                    written = Base64.encode(bytes: input.span, into: &output)
+                }
             }
-        }
+        #else
+            appended = [UInt8](unsafeUninitializedCapacity: prefix.count + expected.count) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                for byte in prefix { output.append(byte) }
+                bytes.withUnsafeBufferPointer { input in
+                    written = Base64.encode(bytes: input.span, into: &output)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
         #expect(written == expected.count)
         #expect(appended == prefix + expected)
 
@@ -226,12 +251,24 @@ struct ChromiumTests {
         #expect(written == expected.count)
         #expect(Array(storage[..<written]) == expected)
 
-        let appended = try [UInt8](capacity: Base64.decodedLength(bytesCount: encoded.count)) {
-            (output: inout OutputSpan<UInt8>) in
-            try encoded.withUnsafeBufferPointer { input in
-                _ = try Base64.decode(bytes: input.span, into: &output, options: decodingOptions)
+        let capacity = Base64.decodedLength(bytesCount: encoded.count)
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                try encoded.withUnsafeBufferPointer { input in
+                    _ = try Base64.decode(bytes: input.span, into: &output, options: decodingOptions)
+                }
             }
-        }
+        #else
+            appended = try [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                try encoded.withUnsafeBufferPointer { input in
+                    _ = try Base64.decode(bytes: input.span, into: &output, options: decodingOptions)
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
         #expect(appended == expected)
     }
 
@@ -244,12 +281,25 @@ struct ChromiumTests {
 
         var written = 0
         let capacity = prefix.count + Base64.decodedLength(bytesCount: encoded.count)
-        let appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
-            for byte in prefix { output.append(byte) }
-            try encoded.withUnsafeBufferPointer { input in
-                written = try Base64.decode(bytes: input.span, into: &output, options: [])
+        let appended: [UInt8]
+
+        #if swift(>=6.3)
+            appended = try [UInt8](capacity: capacity) { (output: inout OutputSpan<UInt8>) in
+                for byte in prefix { output.append(byte) }
+                try encoded.withUnsafeBufferPointer { input in
+                    written = try Base64.decode(bytes: input.span, into: &output, options: [])
+                }
             }
-        }
+        #else
+            appended = try [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+                var output = OutputSpan(buffer: buffer, initializedCount: 0)
+                for byte in prefix { output.append(byte) }
+                try encoded.withUnsafeBufferPointer { input in
+                    written = try Base64.decode(bytes: input.span, into: &output, options: [])
+                }
+                initializedCount = output.finalize(for: buffer)
+            }
+        #endif
 
         #expect(written == expected.count)
         #expect(appended == prefix + expected)
