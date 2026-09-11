@@ -17,6 +17,7 @@ extension Base64 {
     /// - Returns: The number of bytes written to `output`.
     @available(macOS 10.14.4, *)
     @inlinable
+    @_lifetime(output: copy output)
     public static func encode(
         bytes: Span<UInt8>,
         into output: inout MutableSpan<UInt8>,
@@ -38,6 +39,7 @@ extension Base64 {
     @available(macOS 10.14.4, *)
     @inlinable
     @discardableResult
+    @_lifetime(output: copy output)
     public static func encode(
         bytes: Span<UInt8>,
         into output: inout OutputSpan<UInt8>,
@@ -96,6 +98,7 @@ extension Base64 {
     /// - Returns: The number of bytes written to `output`.
     @inlinable
     @available(macOS 10.14.4, *)
+    @_lifetime(output: copy output)
     public static func decode(
         bytes: Span<UInt8>,
         into output: inout MutableSpan<UInt8>,
@@ -122,6 +125,7 @@ extension Base64 {
     @inlinable
     @discardableResult
     @available(macOS 10.14.4, *)
+    @_lifetime(output: copy output)
     public static func decode(
         bytes: Span<UInt8>,
         into output: inout OutputSpan<UInt8>,
