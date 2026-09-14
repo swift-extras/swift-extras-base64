@@ -5,9 +5,8 @@ import Foundation
 let benchmarks: @Sendable () -> Void = {
     Benchmark.defaultConfiguration = .init(
         metrics: [
-            .cpuTotal,
-            .throughput,
             .mallocCountTotal,
+            .instructions,
         ],
         warmupIterations: 10,
         scalingFactor: .kilo
