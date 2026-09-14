@@ -304,4 +304,73 @@ struct ChromiumTests {
         #expect(written == expected.count)
         #expect(appended == prefix + expected)
     }
+
+    @available(macOS 26, iOS 26, tvOS 26, watchOS 26, visionOS 26, *)
+    @Test(arguments: [Base64.EncodingOptions(), .base64UrlAlphabet, .omitPaddingCharacter, [.base64UrlAlphabet, .omitPaddingCharacter]])
+    func allocatingSpanOverloadsMatchCollection(options: Base64.EncodingOptions) throws {
+        let decodingOptions = Base64.DecodingOptions(rawValue: options.rawValue)
+        for length in 0...12 {
+            let bytes = (0..<length).map { UInt8(truncatingIfNeeded: $0 &* 7 &+ 1) }
+            let expected = Base64.encodeToBytes(bytes: bytes, options: options)
+
+            bytes.withUnsafeBufferPointer { input in
+                #expect(Base64.encodeToBytes(bytes: input.span, options: options) == expected, "length \(length)")
+                #expect(
+                    Base64.encodeToString(bytes: input.span, options: options)
+                        == Base64.encodeToString(bytes: bytes, options: options),
+                    "length \(length)"
+                )
+                #expect(
+                    String(base64Encoding: input.span, options: options) == String(base64Encoding: bytes, options: options),
+                    "length \(length)"
+                )
+            }
+
+            let decoded = try expected.withUnsafeBufferPointer { input in
+                try Base64.decode(bytes: input.span, options: decodingOptions)
+            }
+            #expect(decoded == bytes, "length \(length)")
+        }
+    }
+
+    @Test(arguments: [Base64.EncodingOptions(), .base64UrlAlphabet, .omitPaddingCharacter, [.base64UrlAlphabet, .omitPaddingCharacter]])
+    func nonContiguousCollectionForwardsOptions(options: Base64.EncodingOptions) throws {
+        let source: [UInt8] = [1, 2, 3, 4, 5, 6, 7]
+        // `ReversedCollection` has no contiguous storage, so encode/decode take the
+        // `Array(bytes)` fallback branch. The eager `Array` form is contiguous, so
+        // comparing the two also guards that `options` is forwarded across the fallback.
+        let nonContiguous = source.reversed()
+        let eager = Array(source.reversed())
+        let decodingOptions = Base64.DecodingOptions(rawValue: options.rawValue)
+
+        #expect(
+            Base64.encodeToBytes(bytes: nonContiguous, options: options)
+                == Base64.encodeToBytes(bytes: eager, options: options)
+        )
+        #expect(
+            Base64.encodeToString(bytes: nonContiguous, options: options)
+                == Base64.encodeToString(bytes: eager, options: options)
+        )
+        #expect(String(base64Encoding: nonContiguous, options: options) == String(base64Encoding: eager, options: options))
+
+        let encoded = Base64.encodeToBytes(bytes: eager, options: options)
+        let decodedNonContiguous = try Base64.decode(bytes: encoded.reversed().reversed(), options: decodingOptions)
+        #expect(decodedNonContiguous == eager)
+    }
+
+    @Test
+    func decodeInvalidCharacterInNonFinalChunk() {
+        let input = Array("!AAAAAAA".utf8)
+        #expect(throws: Base64.DecodingError.invalidCharacter(UInt8(ascii: "!"))) {
+            _ = try Base64.decode(bytes: input)
+        }
+    }
+
+    @Test
+    func decodeOmitPaddingInvalidLength() {
+        let input = Array("AAAAA".utf8)  // 5 chars, remainder 1
+        #expect(throws: Base64.DecodingError.invalidLength) {
+            _ = try Base64.decode(bytes: input, options: .omitPaddingCharacter)
+        }
+    }
 }

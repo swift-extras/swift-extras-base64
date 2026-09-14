@@ -162,4 +162,30 @@ extension Base32 {
             }
         }
     }
+
+    /// Return the bytes that `bytes` decodes.
+    ///
+    /// Use `decode(bytes:into:options:)` instead to avoid the allocation.
+    ///
+    /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
+    @available(macOS 10.14.4, *)
+    @inlinable
+    public static func decode(bytes: Span<UInt8>, options: DecodingOptions = []) throws -> [UInt8] {
+        guard bytes.count > 0 else {
+            return []
+        }
+
+        return try bytes.withUnsafeBufferPointer { input -> [UInt8] in
+            let outputLength = decodedLength(bytesCount: input.count)
+
+            return try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
+                if options.contains(.allowNullCharacters) {
+                    length = try Self._decode(from: input[...], into: output[...])
+                } else {
+                    length = try Self._strictDecode(from: input, into: output)
+                }
+            }
+
+        }
+    }
 }

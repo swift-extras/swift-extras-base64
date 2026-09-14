@@ -320,4 +320,88 @@ struct Base32Tests {
         #expect(written == expected.count)
         #expect(appended == prefix + expected)
     }
+
+    @available(macOS 26, iOS 26, tvOS 26, watchOS 26, visionOS 26, *)
+    @Test(arguments: [Base32.EncodingOptions(), .omitPaddingCharacter])
+    func allocatingSpanOverloadsMatchCollection(options: Base32.EncodingOptions) throws {
+        // 0...9 covers every remainder class mod 5, including the padding edges.
+        for length in 0...9 {
+            let bytes = (0..<length).map { UInt8(truncatingIfNeeded: $0 &* 7 &+ 1) }
+            let expected = Base32.encodeToBytes(bytes: bytes, options: options)
+
+            bytes.withUnsafeBufferPointer { input in
+                #expect(Base32.encodeToBytes(bytes: input.span, options: options) == expected, "length \(length)")
+                #expect(
+                    Base32.encodeToString(bytes: input.span, options: options)
+                        == Base32.encodeToString(bytes: bytes, options: options),
+                    "length \(length)"
+                )
+                #expect(
+                    String(base32Encoding: input.span, options: options) == String(base32Encoding: bytes, options: options),
+                    "length \(length)"
+                )
+            }
+
+            let decoded = try expected.withUnsafeBufferPointer { input in
+                try Base32.decode(bytes: input.span)
+            }
+            #expect(decoded == bytes, "length \(length)")
+        }
+    }
+
+    @Test(arguments: [Base32.EncodingOptions(), .omitPaddingCharacter])
+    func nonContiguousCollectionForwardsOptions(options: Base32.EncodingOptions) throws {
+        let source: [UInt8] = [1, 2, 3, 4, 5, 6, 7]
+        // `ReversedCollection` has no contiguous storage, so encode/decode take the
+        // `Array(bytes)` fallback branch. Comparing to the eager `Array` form also
+        // guards that `options` is forwarded across the fallback.
+        let nonContiguous = source.reversed()
+        let eager = Array(source.reversed())
+
+        #expect(
+            Base32.encodeToBytes(bytes: nonContiguous, options: options)
+                == Base32.encodeToBytes(bytes: eager, options: options)
+        )
+        #expect(
+            Base32.encodeToString(bytes: nonContiguous, options: options)
+                == Base32.encodeToString(bytes: eager, options: options)
+        )
+        #expect(String(base32Encoding: nonContiguous, options: options) == String(base32Encoding: eager, options: options))
+
+        let encoded = Base32.encodeToBytes(bytes: eager, options: options)
+        let decodedNonContiguous = try Base32.decode(bytes: encoded.reversed().reversed())
+        #expect(decodedNonContiguous == eager)
+    }
+
+    @available(macOS 26, iOS 26, tvOS 26, watchOS 26, visionOS 26, *)
+    @Test
+    func allocatingSpanDecodeAllowsNullCharacters() throws {
+        // A multi-line encoding: the newlines fall inside the decoder's fast-path
+        // blocks, so the strict branch rejects them and `.allowNullCharacters` skips them.
+        let base32 = """
+            AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5D
+            YPSAIJCEMSCKJRHFAUSUKZMFUXC6MBRGIZTINJWG44DSOR3HQ
+            6T4P2AIFBEGRCFIZDUQSKKJNGE2TSPKBIVEU2UKVLFOWCZLJN
+            VYXK6L5QGCYTDMRSWMZ3INFVGW3DNNZXXA4LSON2HK5TXPB4X
+            U634PV7H7AEBQKBYJBMGQ6EITCULRSGY5D4QSGJJHFEVS2LZR
+            GM2TOOJ3HU7UCQ2FI5EUWTKPKFJVKV2ZLNOV6YLDMVTWS23NN
+            5YXG5LXPF5X274BQOCYPCMLRWHZDE4VS6MZXHM7UGR2LJ5JVO
+            W27MNTWW33TO55X7A4HROHZHF43T6R2PK5PWO33XP6DY7F47U
+            6X3PP6HZ7L57Z7P674
+            """
+        let expected = Array(UInt8(0)...UInt8(255))
+        let input = Array(base32.utf8)
+
+        let decoded = try input.withUnsafeBufferPointer { buffer in
+            try Base32.decode(bytes: buffer.span, options: .allowNullCharacters)
+        }
+        #expect(decoded == expected)
+
+        // The same input through the strict (default) branch must reject the newlines.
+        _ = input.withUnsafeBufferPointer { buffer in
+            #expect(throws: Base32.DecodingError.invalidCharacter) {
+                _ = try Base32.decode(bytes: buffer.span)
+            }
+        }
+    }
 }
