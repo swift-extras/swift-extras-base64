@@ -27,7 +27,6 @@ var swiftSettings: [SwiftSetting] {
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
         .enableUpcomingFeature("ImmutableWeakCaptures"),
         .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
-        .enableExperimentalFeature("LifetimeDependence"),
         .enableExperimentalFeature("Lifetimes"),
         .enableUpcomingFeature("LifetimeDependence"),
         .enableUpcomingFeature("ImmutableWeakCaptures"),
