@@ -96,8 +96,8 @@ extension Base64 {
         let newCapacity = encodedLength(bytesCount: bytes.count, options: options)
 
         if let result = bytes.withContiguousStorageIfAvailable({ input -> [UInt8] in
-            unsafe [UInt8](unsafeUninitializedCapacity: newCapacity) { buffer, length in
-                length = unsafe Self._encodeChromium(input: input, buffer: buffer, options: options)
+            [UInt8](unsafeUninitializedCapacity: newCapacity) { buffer, length in
+                length = Self._encodeChromium(input: input, buffer: buffer, options: options)
             }
         }) {
             return result
@@ -112,8 +112,8 @@ extension Base64 {
             let newCapacity = encodedLength(bytesCount: bytes.count, options: options)
 
             if let result = bytes.withContiguousStorageIfAvailable({ input -> String in
-                unsafe String(unsafeUninitializedCapacity: newCapacity) { buffer -> Int in
-                    unsafe Self._encodeChromium(input: input, buffer: buffer, options: options)
+                String(unsafeUninitializedCapacity: newCapacity) { buffer -> Int in
+                    Self._encodeChromium(input: input, buffer: buffer, options: options)
                 }
             }) {
                 return result
@@ -140,48 +140,48 @@ extension Base64 {
             "Expected the output buffer to be at least as long as the encoded length"
         )
 
-        return unsafe Self.withUnsafeEncodingTablesAsBufferPointers(options: options) { e0, e1 in
+        return Self.withUnsafeEncodingTablesAsBufferPointers(options: options) { e0, e1 in
             let to = input.count / 3 * 3
             var outIndex = 0
             for index in stride(from: 0, to: to, by: 3) {
-                let i1 = unsafe input[index]
-                let i2 = unsafe input[index + 1]
-                let i3 = unsafe input[index + 2]
-                unsafe buffer[outIndex] = e0[Int(i1)]
-                unsafe buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
-                unsafe buffer[outIndex + 2] = e1[Int(((i2 & 0x0F) << 2) | ((i3 >> 6) & 0x03))]
-                unsafe buffer[outIndex + 3] = e1[Int(i3)]
+                let i1 = input[index]
+                let i2 = input[index + 1]
+                let i3 = input[index + 2]
+                buffer[outIndex] = e0[Int(i1)]
+                buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
+                buffer[outIndex + 2] = e1[Int(((i2 & 0x0F) << 2) | ((i3 >> 6) & 0x03))]
+                buffer[outIndex + 3] = e1[Int(i3)]
                 outIndex += 4
             }
 
             if to < input.count {
                 let index = to
 
-                let i1 = unsafe input[index]
-                let i2 = unsafe index + 1 < input.count ? input[index + 1] : nil
-                let i3 = unsafe index + 2 < input.count ? input[index + 2] : nil
+                let i1 = input[index]
+                let i2 = index + 1 < input.count ? input[index + 1] : nil
+                let i3 = index + 2 < input.count ? input[index + 2] : nil
 
-                unsafe buffer[outIndex] = e0[Int(i1)]
+                buffer[outIndex] = e0[Int(i1)]
 
                 if let i2 = i2, let i3 = i3 {
-                    unsafe buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
-                    unsafe buffer[outIndex + 2] = e1[Int(((i2 & 0x0F) << 2) | ((i3 >> 6) & 0x03))]
-                    unsafe buffer[outIndex + 3] = e1[Int(i3)]
+                    buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
+                    buffer[outIndex + 2] = e1[Int(((i2 & 0x0F) << 2) | ((i3 >> 6) & 0x03))]
+                    buffer[outIndex + 3] = e1[Int(i3)]
                     outIndex += 4
                 } else if let i2 = i2 {
-                    unsafe buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
-                    unsafe buffer[outIndex + 2] = e1[Int((i2 & 0x0F) << 2)]
+                    buffer[outIndex + 1] = e1[Int(((i1 & 0x03) << 4) | ((i2 >> 4) & 0x0F))]
+                    buffer[outIndex + 2] = e1[Int((i2 & 0x0F) << 2)]
                     outIndex += 3
                     if !omitPaddingCharacter {
-                        unsafe buffer[outIndex] = Self.encodePaddingCharacter
+                        buffer[outIndex] = Self.encodePaddingCharacter
                         outIndex += 1
                     }
                 } else {
-                    unsafe buffer[outIndex + 1] = e1[Int((i1 & 0x03) << 4)]
+                    buffer[outIndex + 1] = e1[Int((i1 & 0x03) << 4)]
                     outIndex += 2
                     if !omitPaddingCharacter {
-                        unsafe buffer[outIndex] = Self.encodePaddingCharacter
-                        unsafe buffer[outIndex + 1] = Self.encodePaddingCharacter
+                        buffer[outIndex] = Self.encodePaddingCharacter
+                        buffer[outIndex + 1] = Self.encodePaddingCharacter
                         outIndex += 2
                     }
                 }
@@ -201,9 +201,9 @@ extension Base64 {
         assert(encoding0.count == 256)
         assert(encoding1.count == 256)
 
-        return unsafe try encoding0.withUnsafeBufferPointer { e0 -> R in
-            unsafe try encoding1.withUnsafeBufferPointer { e1 -> R in
-                unsafe try body(e0, e1)
+        return try encoding0.withUnsafeBufferPointer { e0 -> R in
+            try encoding1.withUnsafeBufferPointer { e1 -> R in
+                try body(e0, e1)
             }
         }
     }
@@ -246,16 +246,16 @@ extension Base64 {
 
     @inlinable
     public static func decode(string encoded: String, options: DecodingOptions = []) throws -> [UInt8] {
-        let decoded = unsafe try encoded.utf8.withContiguousStorageIfAvailable { characterPointer -> [UInt8] in
+        let decoded = try encoded.utf8.withContiguousStorageIfAvailable { characterPointer -> [UInt8] in
             guard characterPointer.count > 0 else {
                 return []
             }
 
             let outputLength = decodedLength(bytesCount: characterPointer.count)
 
-            return unsafe try characterPointer.withMemoryRebound(to: UInt8.self) { input -> [UInt8] in
-                unsafe try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
-                    length = unsafe try Self._decodeChromium(from: input, into: output, options: options)
+            return try characterPointer.withMemoryRebound(to: UInt8.self) { input -> [UInt8] in
+                try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
+                    length = try Self._decodeChromium(from: input, into: output, options: options)
                 }
             }
         }
@@ -278,8 +278,8 @@ extension Base64 {
         let decoded = try bytes.withContiguousStorageIfAvailable { input -> [UInt8] in
             let outputLength = decodedLength(bytesCount: input.count)
 
-            return unsafe try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
-                length = unsafe try Self._decodeChromium(from: input, into: output, options: options)
+            return try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
+                length = try Self._decodeChromium(from: input, into: output, options: options)
             }
         }
 
@@ -313,27 +313,27 @@ extension Base64 {
             preconditionFailure("Expected the out buffer to be at least as long as outputLength")
         }
 
-        return unsafe try Self.withUnsafeDecodingTablesAsBufferPointers(options: options) { d0, d1, d2, d3 in
+        return try Self.withUnsafeDecodingTablesAsBufferPointers(options: options) { d0, d1, d2, d3 in
             var outIndex = 0
             if fullchunks > 0 {
                 for chunk in 0..<fullchunks {
                     let inIndex = chunk * 4
-                    let a0 = unsafe inBuffer[inIndex]
-                    let a1 = unsafe inBuffer[inIndex + 1]
-                    let a2 = unsafe inBuffer[inIndex + 2]
-                    let a3 = unsafe inBuffer[inIndex + 3]
-                    var x: UInt32 = unsafe d0[Int(a0)] | d1[Int(a1)] | d2[Int(a2)] | d3[Int(a3)]
+                    let a0 = inBuffer[inIndex]
+                    let a1 = inBuffer[inIndex + 1]
+                    let a2 = inBuffer[inIndex + 2]
+                    let a3 = inBuffer[inIndex + 3]
+                    var x: UInt32 = d0[Int(a0)] | d1[Int(a1)] | d2[Int(a2)] | d3[Int(a3)]
 
                     if x >= Self.badCharacter {
                         // TODO: Inspect characters here better
-                        throw unsafe DecodingError.invalidCharacter(inBuffer[inIndex])
+                        throw DecodingError.invalidCharacter(inBuffer[inIndex])
                     }
 
-                    unsafe withUnsafePointer(to: &x) { ptr in
-                        unsafe ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { newPtr in
-                            unsafe outBuffer[outIndex] = newPtr[0]
-                            unsafe outBuffer[outIndex + 1] = newPtr[1]
-                            unsafe outBuffer[outIndex + 2] = newPtr[2]
+                    withUnsafePointer(to: &x) { ptr in
+                        ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { newPtr in
+                            outBuffer[outIndex] = newPtr[0]
+                            outBuffer[outIndex + 1] = newPtr[1]
+                            outBuffer[outIndex + 2] = newPtr[2]
                             outIndex += 3
                         }
                     }
@@ -342,33 +342,33 @@ extension Base64 {
 
             // inIndex is the first index in the last chunk
             let inIndex = fullchunks * 4
-            let a0 = unsafe inBuffer[inIndex]
-            let a1 = unsafe inBuffer[inIndex + 1]
+            let a0 = inBuffer[inIndex]
+            let a1 = inBuffer[inIndex + 1]
             var a2: UInt8?
             var a3: UInt8?
-            if inIndex + 2 < inBuffer.count, unsafe inBuffer[inIndex + 2] != Self.encodePaddingCharacter {
-                a2 = unsafe inBuffer[inIndex + 2]
+            if inIndex + 2 < inBuffer.count, inBuffer[inIndex + 2] != Self.encodePaddingCharacter {
+                a2 = inBuffer[inIndex + 2]
             }
-            if inIndex + 3 < inBuffer.count, unsafe inBuffer[inIndex + 3] != Self.encodePaddingCharacter {
-                a3 = unsafe inBuffer[inIndex + 3]
+            if inIndex + 3 < inBuffer.count, inBuffer[inIndex + 3] != Self.encodePaddingCharacter {
+                a3 = inBuffer[inIndex + 3]
             }
 
-            var x: UInt32 = unsafe d0[Int(a0)] | d1[Int(a1)] | d2[Int(a2 ?? 65)] | d3[Int(a3 ?? 65)]
+            var x: UInt32 = d0[Int(a0)] | d1[Int(a1)] | d2[Int(a2 ?? 65)] | d3[Int(a3 ?? 65)]
             if x >= Self.badCharacter {
                 // TODO: Inspect characters here better
-                throw unsafe DecodingError.invalidCharacter(inBuffer[inIndex])
+                throw DecodingError.invalidCharacter(inBuffer[inIndex])
             }
 
-            unsafe withUnsafePointer(to: &x) { ptr in
-                unsafe ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { newPtr in
-                    unsafe outBuffer[outIndex] = newPtr[0]
+            withUnsafePointer(to: &x) { ptr in
+                ptr.withMemoryRebound(to: UInt8.self, capacity: 4) { newPtr in
+                    outBuffer[outIndex] = newPtr[0]
                     outIndex += 1
                     if a2 != nil {
-                        unsafe outBuffer[outIndex] = newPtr[1]
+                        outBuffer[outIndex] = newPtr[1]
                         outIndex += 1
                     }
                     if a3 != nil {
-                        unsafe outBuffer[outIndex] = newPtr[2]
+                        outBuffer[outIndex] = newPtr[2]
                         outIndex += 1
                     }
                 }
@@ -394,11 +394,11 @@ extension Base64 {
         assert(decoding2.count == 256)
         assert(decoding3.count == 256)
 
-        return unsafe try decoding0.withUnsafeBufferPointer { d0 -> R in
-            unsafe try decoding1.withUnsafeBufferPointer { d1 -> R in
-                unsafe try decoding2.withUnsafeBufferPointer { d2 -> R in
-                    unsafe try decoding3.withUnsafeBufferPointer { d3 -> R in
-                        unsafe try body(d0, d1, d2, d3)
+        return try decoding0.withUnsafeBufferPointer { d0 -> R in
+            try decoding1.withUnsafeBufferPointer { d1 -> R in
+                try decoding2.withUnsafeBufferPointer { d2 -> R in
+                    try decoding3.withUnsafeBufferPointer { d3 -> R in
+                        try body(d0, d1, d2, d3)
                     }
                 }
             }

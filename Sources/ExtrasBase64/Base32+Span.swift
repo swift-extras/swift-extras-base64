@@ -23,9 +23,9 @@ extension Base32 {
         into output: inout MutableSpan<UInt8>,
         options: EncodingOptions = []
     ) -> Int {
-        unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe output.withUnsafeMutableBufferPointer { output in
-                unsafe Self._encode(from: input, into: output, options: options)
+        bytes.withUnsafeBufferPointer { input in
+            output.withUnsafeMutableBufferPointer { output in
+                Self._encode(from: input, into: output, options: options)
             }
         }
     }
@@ -45,10 +45,10 @@ extension Base32 {
         into output: inout OutputSpan<UInt8>,
         options: EncodingOptions = []
     ) -> Int {
-        unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe output.withUnsafeMutableBufferPointer { output, initializedCount in
-                let free = unsafe UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
-                let written = unsafe Self._encode(from: input, into: free, options: options)
+        bytes.withUnsafeBufferPointer { input in
+            output.withUnsafeMutableBufferPointer { output, initializedCount in
+                let free = UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
+                let written = Self._encode(from: input, into: free, options: options)
                 initializedCount += written
                 return written
             }
@@ -66,9 +66,9 @@ extension Base32 {
     ) -> [UInt8] {
         let capacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        return unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
-                length = unsafe Self._encode(from: input, into: buffer, options: options)
+        return bytes.withUnsafeBufferPointer { input in
+            [UInt8](unsafeUninitializedCapacity: capacity) { buffer, length in
+                length = Self._encode(from: input, into: buffer, options: options)
             }
         }
     }
@@ -84,9 +84,9 @@ extension Base32 {
     ) -> String {
         let capacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        return unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe String(unsafeUninitializedCapacity: capacity) { buffer in
-                unsafe Self._encode(from: input, into: buffer, options: options)
+        return bytes.withUnsafeBufferPointer { input in
+            String(unsafeUninitializedCapacity: capacity) { buffer in
+                Self._encode(from: input, into: buffer, options: options)
             }
         }
     }
@@ -113,12 +113,12 @@ extension Base32 {
             return 0
         }
 
-        return unsafe try bytes.withUnsafeBufferPointer { input in
-            unsafe try output.withUnsafeMutableBufferPointer { output in
+        return try bytes.withUnsafeBufferPointer { input in
+            try output.withUnsafeMutableBufferPointer { output in
                 if options.contains(.allowNullCharacters) {
-                    unsafe try Self._decode(from: input[...], into: output[...])
+                    try Self._decode(from: input[...], into: output[...])
                 } else {
-                    unsafe try Self._strictDecode(from: input, into: output)
+                    try Self._strictDecode(from: input, into: output)
                 }
             }
         }
@@ -144,17 +144,17 @@ extension Base32 {
             return 0
         }
 
-        return unsafe try bytes.withUnsafeBufferPointer { input in
-            unsafe try output.withUnsafeMutableBufferPointer { output, initializedCount in
+        return try bytes.withUnsafeBufferPointer { input in
+            try output.withUnsafeMutableBufferPointer { output, initializedCount in
                 // Rebase for both paths so each returns a count relative to the free
                 // region. `_decode` reports an index into whatever slice it is given,
                 // while `_strictDecode` reports one relative to its buffer's start.
-                let free = unsafe UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
+                let free = UnsafeMutableBufferPointer(rebasing: output[initializedCount...])
                 let written: Int
                 if options.contains(.allowNullCharacters) {
-                    written = try unsafe Self._decode(from: input[...], into: free[...])
+                    written = try Self._decode(from: input[...], into: free[...])
                 } else {
-                    written = try unsafe Self._strictDecode(from: input, into: free)
+                    written = try Self._strictDecode(from: input, into: free)
                 }
 
                 initializedCount += written

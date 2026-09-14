@@ -23,9 +23,9 @@ extension Base64 {
         into output: inout MutableSpan<UInt8>,
         options: EncodingOptions = []
     ) -> Int {
-        unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe output.withUnsafeMutableBufferPointer { output in
-                unsafe Self._encodeChromium(input: input, buffer: output, options: options)
+        bytes.withUnsafeBufferPointer { input in
+            output.withUnsafeMutableBufferPointer { output in
+                Self._encodeChromium(input: input, buffer: output, options: options)
             }
         }
     }
@@ -46,10 +46,10 @@ extension Base64 {
         options: EncodingOptions = []
     ) -> Int {
         var written = 0
-        unsafe bytes.withUnsafeBufferPointer { input in
-            unsafe output.withUnsafeMutableBufferPointer { buffer, initializedCount in
-                let free = unsafe UnsafeMutableBufferPointer(rebasing: buffer[initializedCount...])
-                written = unsafe Self._encodeChromium(input: input, buffer: free, options: options)
+        bytes.withUnsafeBufferPointer { input in
+            output.withUnsafeMutableBufferPointer { buffer, initializedCount in
+                let free = UnsafeMutableBufferPointer(rebasing: buffer[initializedCount...])
+                written = Self._encodeChromium(input: input, buffer: free, options: options)
                 initializedCount += written
             }
         }
@@ -64,9 +64,9 @@ extension Base64 {
     public static func encodeToBytes(bytes: Span<UInt8>, options: EncodingOptions = []) -> [UInt8] {
         let newCapacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        return unsafe bytes.withUnsafeBufferPointer { input -> [UInt8] in
-            unsafe [UInt8](unsafeUninitializedCapacity: newCapacity) { buffer, length in
-                length = unsafe Self._encodeChromium(input: input, buffer: buffer, options: options)
+        return bytes.withUnsafeBufferPointer { input -> [UInt8] in
+            [UInt8](unsafeUninitializedCapacity: newCapacity) { buffer, length in
+                length = Self._encodeChromium(input: input, buffer: buffer, options: options)
             }
         }
     }
@@ -79,9 +79,9 @@ extension Base64 {
     public static func encodeToString(bytes: Span<UInt8>, options: EncodingOptions = []) -> String {
         let newCapacity = encodedLength(bytesCount: bytes.count, options: options)
 
-        return unsafe bytes.withUnsafeBufferPointer { input -> String in
-            unsafe String(unsafeUninitializedCapacity: newCapacity) { buffer -> Int in
-                unsafe Self._encodeChromium(input: input, buffer: buffer, options: options)
+        return bytes.withUnsafeBufferPointer { input -> String in
+            String(unsafeUninitializedCapacity: newCapacity) { buffer -> Int in
+                Self._encodeChromium(input: input, buffer: buffer, options: options)
             }
         }
     }
@@ -108,9 +108,9 @@ extension Base64 {
             return 0
         }
 
-        return unsafe try bytes.withUnsafeBufferPointer { input in
-            unsafe try output.withUnsafeMutableBufferPointer { output in
-                unsafe try Self._decodeChromium(from: input, into: output, options: options)
+        return try bytes.withUnsafeBufferPointer { input in
+            try output.withUnsafeMutableBufferPointer { output in
+                try Self._decodeChromium(from: input, into: output, options: options)
             }
         }
     }
@@ -135,10 +135,10 @@ extension Base64 {
             return 0
         }
 
-        return unsafe try bytes.withUnsafeBufferPointer { input in
-            unsafe try output.withUnsafeMutableBufferPointer { buffer, initializedCount in
-                let free = unsafe UnsafeMutableBufferPointer(rebasing: buffer[initializedCount...])
-                let written = unsafe try Self._decodeChromium(from: input, into: free, options: options)
+        return try bytes.withUnsafeBufferPointer { input in
+            try output.withUnsafeMutableBufferPointer { buffer, initializedCount in
+                let free = UnsafeMutableBufferPointer(rebasing: buffer[initializedCount...])
+                let written = try Self._decodeChromium(from: input, into: free, options: options)
                 initializedCount += written
                 return written
             }
@@ -157,11 +157,11 @@ extension Base64 {
             return []
         }
 
-        return unsafe try bytes.withUnsafeBufferPointer { input -> [UInt8] in
+        return try bytes.withUnsafeBufferPointer { input -> [UInt8] in
             let outputLength = decodedLength(bytesCount: input.count)
 
-            return unsafe try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
-                length = unsafe try Self._decodeChromium(from: input, into: output, options: options)
+            return try [UInt8](unsafeUninitializedCapacity: outputLength) { output, length in
+                length = try Self._decodeChromium(from: input, into: output, options: options)
             }
         }
     }
