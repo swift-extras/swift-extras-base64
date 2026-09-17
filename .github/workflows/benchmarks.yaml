@@ -6,27 +6,31 @@ on:
     branches:
       - main
     paths:
-    - '**.swift'
-    - '**.yml'
-    
+      - "**.swift"
+      - "**.yaml"
+      - "**.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   benchmark-delta:
-
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     continue-on-error: true
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-14]
+        os: [ubuntu-latest, macOS-26]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Homebrew Mac
-        if: ${{ runner.os == 'Macos' }}
+        if: ${{ runner.os == 'macOS' }}
         run: |
           echo "/opt/homebrew/bin:/usr/local/bin" >> $GITHUB_PATH
           brew install jemalloc
@@ -83,12 +87,12 @@ jobs:
           echo "_Pull request had performance regressions_" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Comment PR
-        if: ${{ env.hasBenchmark == '1' }}
-        uses: thollander/actions-comment-pull-request@v2
+        if: ${{ env.hasBenchmark == '1' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: thollander/actions-comment-pull-request@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           message: ${{ env.PRTEST }}
-          comment_includes: "Pull request benchmark comparison [${{ matrix.os }}] with"
+          comment-tag: benchmark-ci-comment
       - name: Exit with correct status
         run: |
           exit ${{ env.exitStatus }}

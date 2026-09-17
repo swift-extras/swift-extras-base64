@@ -2,19 +2,18 @@ import Benchmark
 import ExtrasBase64
 import Foundation
 
-let benchmarks = {
+let benchmarks: @Sendable () -> Void = {
     Benchmark.defaultConfiguration = .init(
         metrics: [
-            .cpuTotal,
-            .throughput,
             .mallocCountTotal,
+            .instructions,
         ],
         warmupIterations: 10,
         scalingFactor: .kilo
     )
 
     Benchmark("Base32.encode") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
 
         benchmark.startMeasurement()
 
@@ -24,7 +23,7 @@ let benchmarks = {
     }
 
     Benchmark("Base32.decode") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let base32 = Base32.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
@@ -35,7 +34,7 @@ let benchmarks = {
     }
 
     Benchmark("Base32.decodeIgnoreNullCharacters") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let base32 = Base32.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
@@ -46,7 +45,7 @@ let benchmarks = {
     }
 
     Benchmark("Base64.encode") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
 
         benchmark.startMeasurement()
 
@@ -56,7 +55,7 @@ let benchmarks = {
     }
 
     Benchmark("Base64.decode") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let base64 = Base64.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
@@ -67,7 +66,7 @@ let benchmarks = {
     }
 
     Benchmark("Foundation.encodeToData") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let data = Data(bytes)
 
         benchmark.startMeasurement()
@@ -78,7 +77,7 @@ let benchmarks = {
     }
 
     Benchmark("Foundation.encodeToString") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let data = Data(bytes)
 
         benchmark.startMeasurement()
@@ -89,7 +88,7 @@ let benchmarks = {
     }
 
     Benchmark("Foundation.decodeString") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let base64 = Base64.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()
@@ -100,7 +99,7 @@ let benchmarks = {
     }
 
     Benchmark("Foundation.decodeStringIgnoreUnknownCharacters") { benchmark in
-        let bytes = Array(UInt8(0) ... UInt8(255))
+        let bytes = Array(UInt8(0)...UInt8(255))
         let base64 = Base64.encodeToString(bytes: bytes)
 
         benchmark.startMeasurement()

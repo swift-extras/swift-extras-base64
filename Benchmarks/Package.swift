@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,7 +7,7 @@ let package = Package(
     name: "Benchmarks",
     platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark.git", from: "1.0.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark.git", from: "1.22.0"),
         .package(name: "swift-extras-base64", path: ".."),
     ],
     targets: [
@@ -19,8 +19,8 @@ let package = Package(
             ],
             path: "Benchmarks/BaseN",
             plugins: [
-                .plugin(name: "BenchmarkPlugin", package: "package-benchmark"),
+                .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
             ]
-        ),
+        )
     ]
 )
