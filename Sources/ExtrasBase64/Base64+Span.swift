@@ -15,7 +15,7 @@ extension Base64 {
     /// `output` must be at least `encodedLength(bytesCount:options:)` bytes long.
     ///
     /// - Returns: The number of bytes written to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @_lifetime(output: copy output)
     public static func encode(
@@ -36,7 +36,7 @@ extension Base64 {
     /// free capacity. Elements already present in `output` are preserved.
     ///
     /// - Returns: The number of bytes appended to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @discardableResult
     @_lifetime(output: copy output)
@@ -59,7 +59,7 @@ extension Base64 {
     /// Return the base64 encoding of `bytes` as ASCII characters.
     ///
     /// Use `encode(bytes:into:options:)` instead to avoid the allocation.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     public static func encodeToBytes(bytes: Span<UInt8>, options: EncodingOptions = []) -> [UInt8] {
         let newCapacity = encodedLength(bytesCount: bytes.count, options: options)
@@ -97,7 +97,7 @@ extension Base64 {
     /// - Throws: A ``Base64/DecodingError`` if `bytes` is not valid base64.
     /// - Returns: The number of bytes written to `output`.
     @inlinable
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @_lifetime(output: copy output)
     public static func decode(
         bytes: Span<UInt8>,
@@ -124,7 +124,7 @@ extension Base64 {
     /// - Returns: The number of bytes appended to `output`.
     @inlinable
     @discardableResult
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @_lifetime(output: copy output)
     public static func decode(
         bytes: Span<UInt8>,
@@ -151,7 +151,7 @@ extension Base64 {
     ///
     /// - Throws: A ``Base64/DecodingError`` if `bytes` is not valid base64.
     @inlinable
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     public static func decode(bytes: Span<UInt8>, options: DecodingOptions = []) throws -> [UInt8] {
         guard bytes.count > 0 else {
             return []

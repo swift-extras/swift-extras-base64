@@ -15,7 +15,7 @@ extension Base32 {
     /// `output` must be at least `encodedLength(bytesCount:options:)` bytes long.
     ///
     /// - Returns: The number of bytes written to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @_lifetime(output: copy output)
     public static func encode(
@@ -36,7 +36,7 @@ extension Base32 {
     /// free capacity. Elements already present in `output` are preserved.
     ///
     /// - Returns: The number of bytes appended to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @discardableResult
     @_lifetime(output: copy output)
@@ -58,7 +58,7 @@ extension Base32 {
     /// Return the base32 encoding of `bytes` as ASCII characters.
     ///
     /// Use `encode(bytes:into:options:)` instead to avoid the allocation.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     public static func encodeToBytes(
         bytes: Span<UInt8>,
@@ -101,7 +101,7 @@ extension Base32 {
     ///
     /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
     /// - Returns: The number of bytes written to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @_lifetime(output: copy output)
     public static func decode(
@@ -131,7 +131,7 @@ extension Base32 {
     ///
     /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
     /// - Returns: The number of bytes appended to `output`.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     @discardableResult
     @_lifetime(output: copy output)
@@ -168,7 +168,7 @@ extension Base32 {
     /// Use `decode(bytes:into:options:)` instead to avoid the allocation.
     ///
     /// - Throws: A ``Base32/DecodingError`` if `bytes` is not valid base32.
-    @available(macOS 10.14.4, *)
+    @available(macOS 10.14.4, iOS 12.2, watchOS 5.2, tvOS 12.2, visionOS 1.0, *)
     @inlinable
     public static func decode(bytes: Span<UInt8>, options: DecodingOptions = []) throws -> [UInt8] {
         guard bytes.count > 0 else {
